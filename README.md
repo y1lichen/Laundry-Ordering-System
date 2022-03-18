@@ -1,1 +1,1 @@
-## This is the repo final project for of my NCCU OOP course.
+## This is the repo for final project of my NCCU OOP course.
