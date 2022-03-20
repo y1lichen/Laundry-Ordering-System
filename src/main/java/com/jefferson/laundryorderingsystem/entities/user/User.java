@@ -9,42 +9,30 @@ import java.util.Objects;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
-    @Column(name = "school_id")
-    private String schoolId;
-    @Column(name = "user_password")
+    private int id;
+    @Column(name = "password")
     private String password;
-    @Column(name = "user_credit")
+    @Column(name = "credit")
     private int credit;
-    @Column(name = "user_is_login")
+    @Column(name = "isLogin")
     private boolean isLogin;
 
     // constructor
     public User() {
     }
-    public User(@NotBlank String schoolId, @NotBlank String password) {
-        this.schoolId = schoolId;
+    public User(@NotBlank int id, @NotBlank String password) {
+        this.id = id;
         this.password = password;
         this.credit = 5;
         this.isLogin = false;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
-    }
-
-    public void setSchoolId(String schoolId) {
-        this.schoolId = schoolId;
-    }
-
-    public String getSchoolId() {
-        return schoolId;
     }
 
     public String getPassword() {
@@ -76,12 +64,12 @@ public class User {
         if (this == object) return true;
         if (!(object instanceof User)) return false;
         User user = (User) object;
-        return (Objects.equals(schoolId, user.getSchoolId()) &&
+        return (Objects.equals(id, user.getId()) &&
                 Objects.equals(password, user.getPassword()));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, schoolId, password, isLogin);
+        return Objects.hash(id, password, isLogin);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -22,50 +23,64 @@ public class UserController {
     // create User
     @PostMapping("/create")
     public Status createUser(@Valid @RequestBody User newUser) {
-        List<User> users = userRepo.findAll();
-        for (User user: users) {
-            if (user.equals(newUser)) {
-                return Status.USER_ALREADY_EXISTS;
-            }
+        Optional<User> user = userRepo.findById(newUser.getId());
+        if (user.isEmpty()) {
+           userRepo.save(newUser);
+           return Status.SUCCESS;
         }
-        userRepo.save(newUser);
-        return Status.SUCCESS;
+        return Status.USER_ALREADY_EXISTS;
     }
 
     @PostMapping("/login")
     public Status loginUser(@Valid @RequestBody User user) {
-        List<User> users = userRepo.findAll();
-        for (User other: users) {
-            if (other.equals(user)) {
-                user.setIsLogin(true);
-                userRepo.save(user);
-                return Status.SUCCESS;
-            }
+        Optional<User> userInDB = userRepo.findById(user.getId());
+        if (userInDB.isPresent() && user.equals(userInDB.get())) {
+            user.setIsLogin(true);
+            userRepo.save(user);
+            return Status.SUCCESS;
         }
         return Status.FAILURE;
     }
 
     @PostMapping("/logout")
     public Status logoutUser(@Valid @RequestBody User user) {
-        List<User> users = userRepo.findAll();
-        for (User other: users) {
-            if (other.equals(user)) {
-                user.setIsLogin(false);
-                userRepo.save(user);
-                return Status.SUCCESS;
-            }
+        Optional<User> userInDB = userRepo.findById(user.getId());
+        if (userInDB.isPresent() && user.equals(userInDB.get())) {
+            user.setIsLogin(false);
+            userRepo.save(user);
+            return Status.SUCCESS;
         }
         return Status.FAILURE;
     }
 
     @PostMapping("/delete")
     public Status deleteUser(@Valid @RequestBody User user) {
-        List<User> users = userRepo.findAll();
-        for (User other: users) {
-            if (other.equals(user)) {
-                userRepo.delete(other);
-                return Status.SUCCESS;
-            }
+        Optional<User> userInDB = userRepo.findById(user.getId());
+        if (userInDB.isPresent()) {
+            userRepo.delete(userInDB.get());
+            return Status.SUCCESS;
+        }
+        return Status.FAILURE;
+    }
+
+    @PostMapping("/add-credit")
+    public Status addCredit(@Valid @RequestBody User user) {
+        Optional<User> userInDB = userRepo.findById(user.getId());
+        if (userInDB.isPresent()) {
+            user.setCredit(userInDB.get().getCredit() + 1);
+            userRepo.save(user);
+            return Status.SUCCESS;
+        }
+        return Status.FAILURE;
+    }
+
+    @PostMapping("/sub-credit")
+    public Status subCredit(@Valid @RequestBody User user) {
+        Optional<User> userInDB = userRepo.findById(user.getId());
+        if (userInDB.isPresent()) {
+            user.setCredit(userInDB.get().getCredit() - 1);
+            userRepo.save(user);
+            return Status.SUCCESS;
         }
         return Status.FAILURE;
     }
