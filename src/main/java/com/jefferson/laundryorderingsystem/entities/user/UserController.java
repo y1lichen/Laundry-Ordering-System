@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,8 +24,8 @@ public class UserController {
     public Status createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userRepo.findById(newUser.getId());
         if (user.isEmpty()) {
-           userRepo.save(newUser);
-           return Status.SUCCESS;
+            userRepo.save(newUser);
+            return Status.SUCCESS;
         }
         return Status.USER_ALREADY_EXISTS;
     }
@@ -66,7 +65,7 @@ public class UserController {
     @PostMapping("/add-credit")
     public Status addCredit(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent()) {
+        if (userInDB.isPresent() && user.getIsLogin()) {
             user.setCredit(userInDB.get().getCredit() + 1);
             userRepo.save(user);
             return Status.SUCCESS;
@@ -77,7 +76,7 @@ public class UserController {
     @PostMapping("/sub-credit")
     public Status subCredit(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent()) {
+        if (userInDB.isPresent() && user.getIsLogin()) {
             user.setCredit(userInDB.get().getCredit() - 1);
             userRepo.save(user);
             return Status.SUCCESS;
