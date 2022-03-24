@@ -9,26 +9,8 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(value = "/users", produces = "applications/json")
 public class UserController {
-
-    private static class SetCreditRequest {
-        private int id;
-        private String password;
-        private int credit;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public int getCredit() {
-            return credit;
-        }
-    }
 
     @Autowired
     private UserRepo userRepo;
@@ -83,24 +65,22 @@ public class UserController {
     }
 
     @PostMapping("/set-credit")
-    public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditRequest request) {
-        Optional<User> optUserInDB = userRepo.findById(request.getId());
+    public ResponseEntity<String> addCredit(@Valid @RequestParam int id, @RequestParam String password, @RequestParam int credit) {
+        Optional<User> optUserInDB = userRepo.findById(id);
         if (optUserInDB.isPresent()) {
             User userInDB = optUserInDB.get();
-            userInDB.setCredit(request.getCredit());
-            userRepo.save(userInDB);
-            return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
+            if (userInDB.getPassword().equals(password)) {
+                userInDB.setCredit(credit);
+                userRepo.save(userInDB);
+                return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
+            }
         }
         return ResponseEntity.badRequest().body("Unable correctly to set credit.");
     }
 
     @DeleteMapping("/deleteall")
     public ResponseEntity<String> deleteAllUsers() {
-        try {
-            userRepo.deleteAll();
-            return ResponseEntity.status(HttpStatus.OK).body("Successfully delete all user");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getLocalizedMessage());
-        }
+        userRepo.deleteAll();
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Request accepted.");
     }
 }
