@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/users", produces = "applications/json")
+@RequestMapping(value = "/users", produces = "application/json")
 public class UserController {
 
     @Autowired
