@@ -9,8 +9,18 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/users", produces = "application/json")
+@RequestMapping(value = "/users")
 public class UserController {
+
+    private class LoginResponse {
+        private int returnCode;
+        public void setReturnCode(int returnCode) {
+            this.returnCode = returnCode;
+        }
+        public int getReturnCode() {
+            return returnCode;
+        }
+    }
 
     @Autowired
     private UserRepo userRepo;
@@ -32,15 +42,18 @@ public class UserController {
         return ResponseEntity.badRequest().body("User already exist.");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Integer> loginUser(@Valid @RequestBody User user) {
+    @PostMapping(value = "/login", produces = "application/json")
+    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) {
+        LoginResponse response = new LoginResponse();
         Optional<User> userInDB = userRepo.findById(user.getId());
         if (userInDB.isPresent() && user.equals(userInDB.get())) {
             user.setIsLogin(true);
             userRepo.save(user);
-            return ResponseEntity.status(HttpStatus.OK).body(1);
+            response.setReturnCode(1);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return ResponseEntity.badRequest().body(-1);
+        response.setReturnCode(-1);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/logout")
@@ -75,9 +88,10 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
             }
         }
-        return ResponseEntity.badRequest().body("Unable correctly to set credit.");
+        return ResponseEntity.badRequest().body("Unable to correctly set credit.");
     }
 
+    // for testing
     @DeleteMapping("/deleteall")
     public ResponseEntity<String> deleteAllUsers() {
         userRepo.deleteAll();
