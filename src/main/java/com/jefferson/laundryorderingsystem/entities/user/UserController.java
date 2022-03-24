@@ -12,7 +12,37 @@ import java.util.Optional;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    private class LoginResponse {
+    private static class SetCreditResponseBody {
+        private int id;
+        private String password;
+        private boolean isIncrease;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public boolean isIncrease() {
+            return isIncrease;
+        }
+
+        public void setIncrease(boolean increase) {
+            isIncrease = increase;
+        }
+    }
+
+    private static class LoginResponse {
         private int returnCode;
         public void setReturnCode(int returnCode) {
             this.returnCode = returnCode;
@@ -78,14 +108,14 @@ public class UserController {
     }
 
     @PostMapping("/set-credit")
-    public ResponseEntity<String> addCredit(@RequestParam(value = "id") int id, @RequestParam String password, @RequestParam boolean isIncrease) {
-        User requestUser = new User(id, password);
-        Optional<User> optUserInDB = userRepo.findById(id);
+    public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditResponseBody body) {
+        User requestUser = new User(body.getId(), body.getPassword());
+        Optional<User> optUserInDB = userRepo.findById(body.getId());
         if (optUserInDB.isPresent()) {
             User userInDB = optUserInDB.get();
             if (userInDB.equals(requestUser) && userInDB.getIsLogin()) {
                 int originCredit = userInDB.getCredit();
-                if (isIncrease) {
+                if (body.isIncrease()) {
                     userInDB.setCredit(originCredit + 1);
                 } else if (originCredit > 0) {
                     userInDB.setCredit(originCredit - 1);
