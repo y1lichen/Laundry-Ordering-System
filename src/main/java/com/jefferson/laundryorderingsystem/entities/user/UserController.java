@@ -78,13 +78,18 @@ public class UserController {
     }
 
     @PostMapping("/set-credit")
-    public ResponseEntity<String> addCredit(@Valid @RequestParam int id, @RequestParam String password, @RequestParam int credit) {
+    public ResponseEntity<String> addCredit(@Valid @RequestParam int id, @RequestParam String password, @RequestParam boolean isIncrease) {
         User requestUser = new User(id, password);
         Optional<User> optUserInDB = userRepo.findById(id);
         if (optUserInDB.isPresent()) {
             User userInDB = optUserInDB.get();
             if (userInDB.equals(requestUser) && userInDB.getIsLogin()) {
-                userInDB.setCredit(credit);
+                int originCredit = userInDB.getCredit();
+                if (isIncrease) {
+                    userInDB.setCredit(originCredit + 1);
+                } else if (originCredit > 0) {
+                    userInDB.setCredit(originCredit - 1);
+                }
                 userRepo.save(userInDB);
                 return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
             }
