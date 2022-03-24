@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @PostMapping("/set-credit")
-    public ResponseEntity<String> addCredit(@RequestParam(value = "id", required = false) int id, @RequestParam String password, @RequestParam boolean isIncrease) {
+    public ResponseEntity<String> addCredit(@RequestParam(value = "id") int id, @RequestParam String password, @RequestParam boolean isIncrease) {
         User requestUser = new User(id, password);
         Optional<User> optUserInDB = userRepo.findById(id);
         if (optUserInDB.isPresent()) {
