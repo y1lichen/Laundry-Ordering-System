@@ -42,16 +42,6 @@ public class UserController {
         }
     }
 
-    private static class LoginResponse {
-        private int returnCode;
-        public void setReturnCode(int returnCode) {
-            this.returnCode = returnCode;
-        }
-        public int getReturnCode() {
-            return returnCode;
-        }
-    }
-
     @Autowired
     private UserRepo userRepo;
 
@@ -73,17 +63,18 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", produces = "application/json")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) {
-        LoginResponse response = new LoginResponse();
+    public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent() && user.equals(userInDB.get())) {
-            user.setIsLogin(true);
-            userRepo.save(user);
-            response.setReturnCode(1);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        if (userInDB.isPresent()) {
+            if (user.equals(userInDB.get())) {
+                user.setIsLogin(true);
+                userRepo.save(user);
+                return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
+            } else {
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Wrong password.");
+            }
         }
-        response.setReturnCode(-1);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body("Unable to login.");
     }
 
     @PostMapping("/logout")
