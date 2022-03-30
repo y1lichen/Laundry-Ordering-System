@@ -55,8 +55,16 @@ public class UserController {
             this.replyCode = replyCode;
         }
 
+        public int getReplyCode() {
+            return replyCode;
+        }
+
         public void setDescription(String description) {
             this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 
