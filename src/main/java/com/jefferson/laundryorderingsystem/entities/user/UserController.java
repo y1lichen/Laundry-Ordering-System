@@ -12,6 +12,36 @@ import java.util.Optional;
 @RequestMapping(value = "/users")
 public class UserController {
 
+    private static class SetCreditRequestBody {
+        private int id;
+        private String password;
+        private boolean isIncrease;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public void setIncrease(boolean increase) {
+            this.isIncrease = increase;
+        }
+
+        public boolean isIncrease() {
+            return isIncrease;
+        }
+    }
+
     private static class CreateUserResponseBody {
         private int replyCode;
         private String description;
@@ -90,7 +120,7 @@ public class UserController {
     }
 
     @PostMapping("/set-credit")
-    public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditResponseBody body) {
+    public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditRequestBody body) {
         User requestUser = new User(body.getId(), body.getPassword());
         Optional<User> optUserInDB = userRepo.findById(body.getId());
         if (optUserInDB.isPresent()) {
