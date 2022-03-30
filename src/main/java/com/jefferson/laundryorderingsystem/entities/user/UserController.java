@@ -12,33 +12,18 @@ import java.util.Optional;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    private static class SetCreditResponseBody {
-        private int id;
-        private String password;
-        private boolean isIncrease;
-
-        public int getId() {
-            return id;
+    private static class CreateUserResponseBody {
+        private int replyCode;
+        private String description;
+        public CreateUserResponseBody(int replyCode, String description) {
+            this.replyCode = replyCode;
+            this.description = description;
         }
-
-        public void setId(int id) {
-            this.id = id;
+        public void setReplyCode(int replyCode) {
+            this.replyCode = replyCode;
         }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public boolean isIncrease() {
-            return isIncrease;
-        }
-
-        public void setIncrease(boolean increase) {
-            isIncrease = increase;
+        public void setDescription(String description) {
+            this.description = description;
         }
     }
 
@@ -52,17 +37,23 @@ public class UserController {
     }
 
     // create User
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
+    @PostMapping(value = "/create", produces = "application/json")
+    public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userRepo.findById(newUser.getId());
+        CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "User Exist.");
         if (user.isEmpty()) {
-            userRepo.save(newUser);
-            return ResponseEntity.status(HttpStatus.OK).body("Successfully create user.");
+            try {
+                userRepo.save(newUser);
+                return ResponseEntity.status(HttpStatus.OK).body("Successfully create user.");
+            } catch (Exception e) {
+                responseBody.setDescription("Unable to create user.");
+                return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+            }
         }
-        return ResponseEntity.badRequest().body("User already exist.");
+        return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
     }
 
-    @PostMapping(value = "/login", produces = "application/json")
+    @PostMapping(value = "/login")
     public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
         if (userInDB.isPresent()) {
