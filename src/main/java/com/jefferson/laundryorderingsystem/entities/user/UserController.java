@@ -73,13 +73,20 @@ public class UserController {
     @PostMapping(value = "/create", produces = "application/json")
     public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userRepo.findById(newUser.getId());
-        CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "User Exist.");
-        if (user.isEmpty()) {
-            userRepo.save(newUser);
-            responseBody.setReplyCode(1);
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "Unable to create user.");
+        try {
+            if (user.isEmpty()) {
+                userRepo.save(newUser);
+                responseBody.setReplyCode(1);
+                responseBody.setDescription("Successfully create user.");
+                return new ResponseEntity<>(responseBody, HttpStatus.OK);
+            } else {
+                responseBody.setDescription("User existed.");
+                return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/login")
