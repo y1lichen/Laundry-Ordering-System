@@ -45,13 +45,16 @@ public class UserController {
     private static class CreateUserResponseBody {
         private int replyCode;
         private String description;
+
         public CreateUserResponseBody(int replyCode, String description) {
             this.replyCode = replyCode;
             this.description = description;
         }
+
         public void setReplyCode(int replyCode) {
             this.replyCode = replyCode;
         }
+
         public void setDescription(String description) {
             this.description = description;
         }
@@ -72,15 +75,11 @@ public class UserController {
         Optional<User> user = userRepo.findById(newUser.getId());
         CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "User Exist.");
         if (user.isEmpty()) {
-            try {
-                userRepo.save(newUser);
-                return ResponseEntity.status(HttpStatus.OK).body("Successfully create user.");
-            } catch (Exception e) {
-                responseBody.setDescription("Unable to create user.");
-                return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
-            }
+            userRepo.save(newUser);
+            responseBody.setReplyCode(1);
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
         }
-        return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/login")
