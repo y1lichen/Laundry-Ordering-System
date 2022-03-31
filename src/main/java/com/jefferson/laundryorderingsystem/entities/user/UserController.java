@@ -89,6 +89,7 @@ public class UserController {
                 responseBody.setDescription("Successfully create user.");
                 return new ResponseEntity<>(responseBody, HttpStatus.OK);
             } else {
+                responseBody.setReplyCode(0);
                 responseBody.setDescription("User existed.");
                 return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
             }
