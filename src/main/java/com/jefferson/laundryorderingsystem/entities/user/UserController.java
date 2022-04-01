@@ -42,6 +42,36 @@ public class UserController {
         }
     }
 
+    private static class ChangePasswordRequestBody {
+        private int id;
+        private String oldPassword;
+        private String newPassword;
+        
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
+        }
+
+        public String getOldPassword() {
+            return oldPassword;
+        }
+
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
+        }
+
+        public String getNewPassword() {
+            return newPassword;
+        }
+    }
+
     private static class CreateUserResponseBody {
         private int replyCode;
         private String description;
@@ -132,6 +162,20 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body("Successfully to delete user.");
         }
         return ResponseEntity.badRequest().body("Unable to delete user.");
+    }
+
+    @PostMapping("change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
+        Optional<User> optionalUserInDB = userRepo.findById(body.getId());
+        if (optionalUserInDB.isPresent()) {
+            User userInDB = optionalUserInDB.get();
+            if (userInDB.getPassword().equals(body.getOldPassword())) {
+                userInDB.setPassword(body.getNewPassword());
+            }
+            userRepo.save(userInDB);
+            return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ubable to change password.");
     }
 
     @PostMapping("/set-credit")
