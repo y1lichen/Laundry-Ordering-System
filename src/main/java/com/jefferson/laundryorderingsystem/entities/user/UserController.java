@@ -46,7 +46,7 @@ public class UserController {
         private int id;
         private String oldPassword;
         private String newPassword;
-        
+
         public void setId(int id) {
             this.id = id;
         }
@@ -131,14 +131,10 @@ public class UserController {
     @PostMapping(value = "/login")
     public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent()) {
-            if (user.equals(userInDB.get())) {
-                user.setIsLogin(true);
-                userRepo.save(user);
-                return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
-            } else {
-                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Wrong password.");
-            }
+        if (userInDB.isPresent() && user.equals(userInDB.get())) {
+            user.setIsLogin(true);
+            userRepo.save(user);
+            return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
         }
         return ResponseEntity.badRequest().body("Unable to login.");
     }
