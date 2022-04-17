@@ -101,12 +101,6 @@ public class UserController {
     @Autowired
     private UserRepo userRepo;
 
-    // testing
-    @GetMapping(value = "/test")
-    public String test() {
-        return "Hello";
-    }
-
     // create User
     @PostMapping(value = "/create", produces = "application/json")
     public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
@@ -150,7 +144,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("Unable to logout.");
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@Valid @RequestBody User user) {
         Optional<User> userInDB = userRepo.findById(user.getId());
         if (userInDB.isPresent()) {
@@ -160,7 +154,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("Unable to delete user.");
     }
 
-    @PostMapping("change-password")
+    @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
         Optional<User> optionalUserInDB = userRepo.findById(body.getId());
         if (optionalUserInDB.isPresent()) {
