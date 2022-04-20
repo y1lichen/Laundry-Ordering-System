@@ -2,7 +2,12 @@ package com.jefferson.laundryorderingsystem.entities.user;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+
+import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -17,14 +22,20 @@ public class User {
     @Column(name = "isLogin")
     private boolean isLogin;
 
+    @OneToMany(mappedBy = "reserve_user")
+    @Column(name = "reservations")
+    private Set<Reservation> reservations;
+
     // constructor
     public User() {
     }
+
     public User(@NotBlank int id, @NotBlank String password) {
         this.id = id;
         this.password = password;
         this.credit = 5;
         this.isLogin = false;
+        this.reservations = new HashSet<>();
     }
 
     public void setId(int id) {
@@ -59,10 +70,20 @@ public class User {
         this.isLogin = loggedIn;
     }
 
+    public Set<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(Set<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof User)) return false;
+        if (this == object)
+            return true;
+        if (!(object instanceof User))
+            return false;
         User user = (User) object;
         return (Objects.equals(id, user.getId()) &&
                 Objects.equals(password, user.getPassword()));

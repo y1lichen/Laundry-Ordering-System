@@ -12,6 +12,9 @@ import java.util.Optional;
 @RequestMapping(value = "/users")
 public class UserController {
 
+    private static class ReserveRequestBody {
+    }
+
     private static class SetCreditRequestBody {
         private int id;
         private String password;
@@ -186,6 +189,11 @@ public class UserController {
             }
         }
         return ResponseEntity.badRequest().body("Unable to correctly set credit.");
+    }
+
+    @PostMapping("/reserve")
+    public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
+        return ResponseEntity.badRequest().body("Unable to correctly operate reservation.");
     }
 
     // for testing
