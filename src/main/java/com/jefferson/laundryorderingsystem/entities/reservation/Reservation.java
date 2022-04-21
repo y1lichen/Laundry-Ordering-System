@@ -41,4 +41,38 @@ public class Reservation {
         this.time = time;
         this.reserveUser = user;
     }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public int getMachine() {
+        return machine;
+    }
+
+    public void setMachine(int machine) {
+        this.machine = machine;
+    }
+
+    public User getReserveUser() {
+        return reserveUser;
+    }
+
+    public void setReserveUser(User reserveUser) {
+        this.reserveUser = reserveUser;
+    }
+
 }
