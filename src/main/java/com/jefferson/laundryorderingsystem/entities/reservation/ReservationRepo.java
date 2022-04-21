@@ -11,6 +11,6 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface ReservationRepo extends JpaRepository<Reservation, Integer> {
     
-    @Query("SELECT r FROM reservation r where r.time >= time")
+    @Query("SELECT r FROM reservation r WHERE r.time >= time")
     List<Reservation> findAllByTimeAfter(@Param("time") String time);
 }
