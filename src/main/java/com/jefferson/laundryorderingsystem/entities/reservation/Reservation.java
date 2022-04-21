@@ -20,7 +20,7 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int num;
+    private int id;
 
     @Column(name = "time")
     private Date time;
