@@ -33,8 +33,8 @@ public class ReservationController {
     ReservationRepo repo;
 
     @GetMapping(value = "/get-avaliable-reservations", produces = "application/json")
-    public ResponseEntity<?> getAvaliableReservation(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
-        LocalDateTime localDateTime = localDate.atStartOfDay();
+    public ResponseEntity<?> getAvaliableReservation(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate time) {
+        LocalDateTime localDateTime = time.atStartOfDay();
         GetAvaliableReservationsResponse responseBody = new GetAvaliableReservationsResponse();
         List<Reservation> unavaliableReservations = repo.findAllByTimeAfter(localDateTime);
         logger.info(unavaliableReservations.toString());
