@@ -28,7 +28,6 @@ public class Reservation {
     @Column(name = "machine")
     private int machine;
 
-    @Column(name = "user")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User reserveUser;
