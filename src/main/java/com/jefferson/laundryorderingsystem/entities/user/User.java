@@ -22,7 +22,7 @@ public class User {
     @Column(name = "isLogin")
     private boolean isLogin;
 
-    @OneToMany(mappedBy = "reserve_user")
+    @OneToMany(mappedBy = "reserveUser")
     @Column(name = "reservations")
     private Set<Reservation> reservations;
 
