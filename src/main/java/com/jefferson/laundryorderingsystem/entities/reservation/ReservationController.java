@@ -1,10 +1,14 @@
 package com.jefferson.laundryorderingsystem.entities.reservation;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +33,10 @@ public class ReservationController {
     ReservationRepo repo;
 
     @GetMapping(value = "/get-avaliable-reservations", produces = "application/json")
-    public ResponseEntity<?> getAvaliableReservation(@RequestParam String time) {
+    public ResponseEntity<?> getAvaliableReservation(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
+        LocalDateTime localDateTime = localDate.atStartOfDay();
         GetAvaliableReservationsResponse responseBody = new GetAvaliableReservationsResponse();
-        List<Reservation> unavaliableReservations = repo.findAllByTimeAfter(time);
+        List<Reservation> unavaliableReservations = repo.findAllByTimeAfter(localDateTime);
         logger.info(unavaliableReservations.toString());
         return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
     }

@@ -1,6 +1,6 @@
 package com.jefferson.laundryorderingsystem.entities.reservation;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,7 +23,7 @@ public class Reservation {
     private int id;
 
     @Column(name = "time")
-    private Date time;
+    private LocalDateTime time;
 
     @Column(name = "machine")
     private int machine;
@@ -36,7 +36,7 @@ public class Reservation {
     // constructor
     public Reservation() {}
 
-    public Reservation(@NotBlank Date time, @NotBlank User user) {
+    public Reservation(@NotBlank LocalDateTime time, @NotBlank User user) {
         this.time = time;
         this.reserveUser = user;
     }
@@ -50,11 +50,11 @@ public class Reservation {
         this.id = id;
     }
 
-    public Date getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 
