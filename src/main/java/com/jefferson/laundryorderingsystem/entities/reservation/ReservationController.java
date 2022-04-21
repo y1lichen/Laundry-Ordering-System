@@ -1,8 +1,9 @@
 package com.jefferson.laundryorderingsystem.entities.reservation;
 
-import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("reservations")
+@RequestMapping(value = "reservations")
 public class ReservationController {
+
+    Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     private static String[] possibleTime = { "16:00", "16:40", "17:20", "18:00", "18:40",
             "19:20", "20:00", "20:40", "21:20", "22:00", "22:40", "23:20" };
@@ -29,7 +32,7 @@ public class ReservationController {
     public ResponseEntity<?> getAvaliableReservation(@RequestParam String time) {
         GetAvaliableReservationsResponse responseBody = new GetAvaliableReservationsResponse();
         List<Reservation> unavaliableReservations = repo.findAllByTimeAfter(time);
-        System.out.println(unavaliableReservations.toString());
+        logger.info(unavaliableReservations.toString());
         return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
     }
 
