@@ -14,8 +14,8 @@ import javax.validation.constraints.NotBlank;
 
 import com.jefferson.laundryorderingsystem.entities.user.User;
 
-@Entity
-@Table(name = "reservation")
+@Entity(name ="reservations")
+@Table(name = "reservations")
 public class Reservation {
 
     @Id
