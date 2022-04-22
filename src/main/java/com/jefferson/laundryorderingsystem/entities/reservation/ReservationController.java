@@ -53,8 +53,8 @@ public class ReservationController {
     @GetMapping(value = "/get-avaliable-reservations", produces = "application/json")
     public ResponseEntity<?> getAvaliableReservation(@RequestParam String time) {
         GetAvailableReservationsResponse responseBody = new GetAvailableReservationsResponse();
-        for (int i=0; i<=12; i++) {
-            LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", time, possibleTime[i]));
+        for (String element : possibleTime) {
+            LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", time, element));
             List<Reservation> reservationsOfSpecificTime = repo.findAllByTime(localDateTime);
             if (reservationsOfSpecificTime.size() < totalMachine) {
                 // avaliable
