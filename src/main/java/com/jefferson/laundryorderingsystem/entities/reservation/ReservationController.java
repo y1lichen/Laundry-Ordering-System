@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationController {
 
     // total amount of laundry machine
-    private static int totalMachine = 18;
-
-    Logger logger = LoggerFactory.getLogger(ReservationController.class);
+    private final int totalMachine = 18;
 
     private static String[] possibleTime = { "16:00:00", "16:40:00", "17:20:00", "18:00:00", "18:40:00",
             "19:20:00", "20:00:00", "20:40:00", "21:20:00", "22:00:00", "22:40:00", "23:20:00" };
@@ -38,8 +34,8 @@ public class ReservationController {
             return replyCode;
         }
 
-        public void addToAvaliableTimeList(String time) {
-            availableTimeList.add(time);
+        public void setAvailableTimeList(ArrayList<String> availableTimeList) {
+            this.availableTimeList = availableTimeList;
         }
 
         public ArrayList<String> getAvailableTimeList() {
@@ -51,23 +47,26 @@ public class ReservationController {
     ReservationRepo repo;
 
     @GetMapping(value = "/get-avaliable-reservations", produces = "application/json")
-    public ResponseEntity<?> getAvaliableReservation(@RequestParam String time) {
+    public ResponseEntity<?> getAvaliableReservation(@RequestParam String date) {
         GetAvailableReservationsResponse responseBody = new GetAvailableReservationsResponse();
+        ArrayList<String> availableTimeList = new ArrayList<>();
         for (String element : possibleTime) {
-            LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", time, element));
+            LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", date, element));
             List<Reservation> reservationsOfSpecificTime = repo.findAllByTime(localDateTime);
             if (reservationsOfSpecificTime.size() < totalMachine) {
-                // avaliable
-                responseBody.setReplyCode(1);
-                responseBody.addToAvaliableTimeList(reservationsOfSpecificTime.get(0).getTime().toString());
-                return new ResponseEntity<>(responseBody, HttpStatus.OK);
-            } else {
-                // unavaliable
-                responseBody.setReplyCode(-1);
-                return new ResponseEntity<>(responseBody, HttpStatus.ACCEPTED);
+                availableTimeList.add(String.format("%s %s", date, element));
             }
         }
-        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+        responseBody.setAvailableTimeList(availableTimeList);
+        if (availableTimeList.size() == 0) {
+            // unavaliable
+            responseBody.setReplyCode(-1);
+            return new ResponseEntity<>(responseBody, HttpStatus.ACCEPTED);
+        } else {
+            // avaliable
+            responseBody.setReplyCode(1);
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }
     }
 
 }
