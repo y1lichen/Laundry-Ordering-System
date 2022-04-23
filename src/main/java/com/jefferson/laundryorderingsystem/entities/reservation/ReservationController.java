@@ -46,7 +46,7 @@ public class ReservationController {
     @Autowired
     ReservationRepo repo;
 
-    @GetMapping(value = "/get-avaliable-reservations", produces = "application/json")
+    @GetMapping(value = "/get-available-reservations", produces = "application/json")
     public ResponseEntity<?> getAvaliableReservation(@RequestParam String date) {
         GetAvailableReservationsResponse responseBody = new GetAvailableReservationsResponse();
         ArrayList<String> availableTimeList = new ArrayList<>();
