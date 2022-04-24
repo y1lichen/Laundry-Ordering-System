@@ -1,18 +1,48 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Optional;
+
+import javax.validation.Valid;
+
+import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
 
     private static class ReserveRequestBody {
+    }
+
+    private static class GetReservationRequestBody {
+        private int id;
+        private String password;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
     private static class SetCreditRequestBody {
@@ -101,6 +131,18 @@ public class UserController {
         }
     }
 
+    private static class GetReservationResponseBody {
+        private HashMap<Integer, LocalDateTime> reservationHasMap = new HashMap<>();
+
+        public void addReservation(int id, LocalDateTime time) {
+            reservationHasMap.put(id, time);
+        }
+
+        public HashMap<Integer, LocalDateTime> getReservationHasMap() {
+            return reservationHasMap;
+        }
+    }
+
     @Autowired
     private UserRepo userRepo;
 
@@ -154,7 +196,7 @@ public class UserController {
             userRepo.delete(userInDB.get());
             return ResponseEntity.status(HttpStatus.OK).body("Successfully to delete user.");
         }
-        return ResponseEntity.badRequest().body("Unable to delete user.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to delete user.");
     }
 
     @PostMapping("/change-password")
@@ -164,6 +206,7 @@ public class UserController {
             User userInDB = optionalUserInDB.get();
             if (userInDB.getPassword().equals(body.getOldPassword())) {
                 userInDB.setPassword(body.getNewPassword());
+                userInDB.setIsLogin(false);
             }
             userRepo.save(userInDB);
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
@@ -188,9 +231,26 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
             }
         }
-        return ResponseEntity.badRequest().body("Unable to correctly set credit.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to set credit.");
     }
 
+    @PostMapping(value = "/get-user-reservations", produces = "application/json")
+    public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
+        Optional<User> optUserInDB = userRepo.findById(body.getId());
+        if (optUserInDB.isPresent()) {
+            User user = optUserInDB.get();
+            if (user.getPassword().equals(body.getPassword())) {
+                GetReservationResponseBody response = new GetReservationResponseBody();
+                for (Reservation reservation: user.getReservations()) {
+                    response.addReservation(reservation.getId(), reservation.getTime());
+                }
+                return new ResponseEntity<GetReservationResponseBody>(response, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<String>("Unable to find the user.", HttpStatus.NOT_FOUND);
+    }
+
+    // TODO
     @PostMapping("/reserve")
     public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
         return ResponseEntity.badRequest().body("Unable to correctly operate reservation.");
