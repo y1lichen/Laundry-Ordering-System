@@ -2,30 +2,60 @@ package com.jefferson.laundryorderingsystem.entities.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+import com.jefferson.laundryorderingsystem.entities.reservation.ReservationController;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.StreamingHttpOutputMessage.Body;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.qos.logback.classic.turbo.TurboFilter;
-
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
 
     private static class ReserveRequestBody {
+
+        private int id;
+
+        private String password;
+
+        private LocalDateTime time;
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setTime(LocalDateTime time) {
+            this.time = time;
+        }
+
+        public LocalDateTime getTime() {
+            return time;
+        }
     }
 
     private static class GetReservationRequestBody {
@@ -248,6 +278,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to set credit.");
     }
 
+    private ArrayList<Reservation> getUserReservationsByDate(User user, LocalDate date) {
+        ArrayList<Reservation> result = new ArrayList<>();
+        for (Reservation reservation : user.getReservations()) {
+            if (reservation.getTime().toLocalDate() == date) {
+                result.add(reservation);
+            }
+        }
+        return result;
+    }
+
     @PostMapping(value = "/get-user-reservations", produces = "application/json")
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
         Optional<User> optUserInDB = userRepo.findById(body.getId());
@@ -258,6 +298,9 @@ public class UserController {
                 // if contains date
                 if (body.getDate().isPresent()) {
                     LocalDate date = body.getDate().get();
+                    for(Reservation reservation: getUserReservationsByDate(user, date)) {
+                        response.addReservation(reservation.getId(), reservation.getTime());
+                    }
                 } else {
                     for (Reservation reservation : user.getReservations()) {
                         response.addReservation(reservation.getId(), reservation.getTime());
@@ -269,9 +312,20 @@ public class UserController {
         return new ResponseEntity<String>("Unable to find the user.", HttpStatus.NOT_FOUND);
     }
 
-    // TODO
     @PostMapping("/reserve")
     public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
+        Optional<User> optUserInDB = userRepo.findById(body.getId());
+        if (optUserInDB.isPresent()) {
+            User user = optUserInDB.get();
+            if (user.getPassword().equals(body.getPassword())) {
+                ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user, body.getTime().toLocalDate());
+                if (reservationsOfADay.size() > 1) {
+                    return new ResponseEntity<String>("One day one reservations!", HttpStatus.FORBIDDEN);
+                } else {
+                    return new ResponseEntity<String>("reserved!", HttpStatus.OK);
+                }
+            }
+        }
         return ResponseEntity.badRequest().body("Unable to correctly operate reservation.");
     }
 
