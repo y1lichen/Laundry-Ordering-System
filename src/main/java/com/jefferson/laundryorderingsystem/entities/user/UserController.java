@@ -1,5 +1,6 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
@@ -11,11 +12,14 @@ import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.StreamingHttpOutputMessage.Body;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import ch.qos.logback.classic.turbo.TurboFilter;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -27,6 +31,7 @@ public class UserController {
     private static class GetReservationRequestBody {
         private int id;
         private String password;
+        private Optional<LocalDate> date;
 
         public int getId() {
             return id;
@@ -42,6 +47,14 @@ public class UserController {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public Optional<LocalDate> getDate() {
+            return date;
+        }
+
+        public void setDate(Optional<LocalDate> date) {
+            this.date = date;
         }
     }
 
@@ -153,6 +166,7 @@ public class UserController {
         CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "Unable to create user.");
         try {
             if (user.isEmpty()) {
+                newUser.setIsLogin(true);
                 userRepo.save(newUser);
                 responseBody.setReplyCode(1);
                 responseBody.setDescription("Successfully create user.");
@@ -241,8 +255,13 @@ public class UserController {
             User user = optUserInDB.get();
             if (user.getPassword().equals(body.getPassword())) {
                 GetReservationResponseBody response = new GetReservationResponseBody();
-                for (Reservation reservation: user.getReservations()) {
-                    response.addReservation(reservation.getId(), reservation.getTime());
+                // if contains date
+                if (body.getDate().isPresent()) {
+                    LocalDate date = body.getDate().get();
+                } else {
+                    for (Reservation reservation : user.getReservations()) {
+                        response.addReservation(reservation.getId(), reservation.getTime());
+                    }
                 }
                 return new ResponseEntity<GetReservationResponseBody>(response, HttpStatus.OK);
             }
