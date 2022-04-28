@@ -338,9 +338,9 @@ public class UserController {
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
                 ReserveResponseBody response = new ReserveResponseBody(machineNum);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
+        return new ResponseEntity<String>("Unable to correctly operate reservation.", HttpStatus.EXPECTATION_FAILED);
     }
 }
