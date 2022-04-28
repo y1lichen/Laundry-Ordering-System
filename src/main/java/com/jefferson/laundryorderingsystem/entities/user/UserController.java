@@ -3,6 +3,7 @@ package com.jefferson.laundryorderingsystem.entities.user;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +13,6 @@ import javax.validation.Valid;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -311,9 +311,8 @@ public class UserController {
                 int machineNum = reservationService.getMachineNum(time);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
-                Map<String, Object> response = new HashMap<>();
-                response.put("machine_num", machineNum);
-                return ResponseEntity.ok(response);
+                Map<String, Integer> response = Collections.singletonMap("machine_num", machineNum);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
