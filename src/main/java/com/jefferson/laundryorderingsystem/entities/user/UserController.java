@@ -9,9 +9,8 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
-import com.jefferson.laundryorderingsystem.entities.reservation.ReservationController;
+import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
+
+    // using service of Reservations
+    @Autowired
+    private ReservationService reservationService;
 
     private static class ReserveRequestBody {
 

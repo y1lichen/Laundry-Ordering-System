@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "reservations")
 public class ReservationController {
 
+    @Autowired
+    private ReservationService service;
     // total amount of laundry machine
     private final int totalMachine = 18;
 
@@ -43,8 +45,6 @@ public class ReservationController {
         }
     }
 
-    @Autowired
-    ReservationRepo repo;
 
     @GetMapping(value = "/get-available-reservations", produces = "application/json")
     public ResponseEntity<?> getAvaliableReservation(@RequestParam String date) {
@@ -52,7 +52,7 @@ public class ReservationController {
         ArrayList<String> availableTimeList = new ArrayList<>();
         for (String element : possibleTime) {
             LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", date, element));
-            List<Reservation> reservationsOfSpecificTime = repo.findAllByTime(localDateTime);
+            List<Reservation> reservationsOfSpecificTime = service.getReservationsOfSpecificTime(localDateTime);
             if (reservationsOfSpecificTime.size() < totalMachine) {
                 availableTimeList.add(String.format("%s %s", date, element));
             }
