@@ -22,7 +22,7 @@ public class Reservation {
     public static final int totalMachine = 18;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
     @Column(name = "time")
