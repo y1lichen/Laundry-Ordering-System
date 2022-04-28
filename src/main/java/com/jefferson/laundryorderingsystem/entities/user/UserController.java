@@ -317,7 +317,7 @@ public class UserController {
         if (user != null) {
             ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
                     body.getTime().toLocalDate());
-            if (reservationsOfADay.size() > 1) {
+            if (reservationsOfADay.size() >= 1) {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             } else {
                 // add reservation
