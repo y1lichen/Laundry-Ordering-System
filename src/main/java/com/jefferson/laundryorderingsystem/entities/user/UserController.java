@@ -28,6 +28,9 @@ public class UserController {
     @Autowired
     private ReservationService reservationService;
 
+    @Autowired
+    private UserService userService;
+
     private static class ReserveRequestBody {
 
         private int id;
@@ -189,18 +192,15 @@ public class UserController {
         }
     }
 
-    @Autowired
-    private UserRepo userRepo;
-
     // create User
     @PostMapping(value = "/create", produces = "application/json")
     public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
-        Optional<User> user = userRepo.findById(newUser.getId());
+        Optional<User> user = userService.getUserById(newUser.getId());
         CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "Unable to create user.");
         try {
             if (user.isEmpty()) {
                 newUser.setIsLogin(true);
-                userRepo.save(newUser);
+                userService.saveUser(newUser);
                 responseBody.setReplyCode(1);
                 responseBody.setDescription("Successfully create user.");
                 return new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -216,10 +216,10 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
-        Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent() && user.equals(userInDB.get())) {
+        User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
+        if (userInDB != null) {
             user.setIsLogin(true);
-            userRepo.save(user);
+            userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
         }
         return ResponseEntity.badRequest().body("Unable to login.");
@@ -227,10 +227,10 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logoutUser(@Valid @RequestBody User user) {
-        Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent() && user.equals(userInDB.get())) {
+        User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
+        if (userInDB != null) {
             user.setIsLogin(false);
-            userRepo.save(user);
+            userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully logout.");
         }
         return ResponseEntity.badRequest().body("Unable to logout.");
@@ -238,9 +238,8 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@Valid @RequestBody User user) {
-        Optional<User> userInDB = userRepo.findById(user.getId());
-        if (userInDB.isPresent()) {
-            userRepo.delete(userInDB.get());
+        int result = userService.deleteUser(user.getId(), user.getPassword());
+        if (result == 1) {
             return ResponseEntity.status(HttpStatus.OK).body("Successfully to delete user.");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to delete user.");
@@ -248,14 +247,11 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
-        Optional<User> optionalUserInDB = userRepo.findById(body.getId());
-        if (optionalUserInDB.isPresent()) {
-            User userInDB = optionalUserInDB.get();
-            if (userInDB.getPassword().equals(body.getOldPassword())) {
-                userInDB.setPassword(body.getNewPassword());
-                userInDB.setIsLogin(false);
-            }
-            userRepo.save(userInDB);
+        User user = userService.validAndGetUser(body.getId(), body.getOldPassword());
+        if (user != null) {
+            user.setPassword(body.getNewPassword());
+            user.setIsLogin(false);
+            userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ubable to change password.");
@@ -263,20 +259,16 @@ public class UserController {
 
     @PostMapping("/set-credit")
     public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditRequestBody body) {
-        User requestUser = new User(body.getId(), body.getPassword());
-        Optional<User> optUserInDB = userRepo.findById(body.getId());
-        if (optUserInDB.isPresent()) {
-            User userInDB = optUserInDB.get();
-            if (userInDB.equals(requestUser) && userInDB.getIsLogin()) {
-                int originCredit = userInDB.getCredit();
-                if (body.isIncrease()) {
-                    userInDB.setCredit(originCredit + 1);
-                } else if (originCredit > 0) {
-                    userInDB.setCredit(originCredit - 1);
-                }
-                userRepo.save(userInDB);
-                return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
+        User user = userService.validAndGetUser(body.getId(), user.getPassword());
+        if (user != null) {
+            int originCredit = user.getCredit();
+            if (body.isIncrease()) {
+                user.setCredit(originCredit + 1);
+            } else if (originCredit > 0) {
+                user.setCredit(originCredit - 1);
             }
+            userService.saveUser(user);
+            return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to set credit.");
     }
@@ -293,49 +285,37 @@ public class UserController {
 
     @PostMapping(value = "/get-user-reservations", produces = "application/json")
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
-        Optional<User> optUserInDB = userRepo.findById(body.getId());
-        if (optUserInDB.isPresent()) {
-            User user = optUserInDB.get();
-            if (user.getPassword().equals(body.getPassword())) {
-                GetReservationResponseBody response = new GetReservationResponseBody();
-                // if contains date
-                if (body.getDate().isPresent()) {
-                    LocalDate date = body.getDate().get();
-                    for(Reservation reservation: getUserReservationsByDate(user, date)) {
-                        response.addReservation(reservation.getId(), reservation.getTime());
-                    }
-                } else {
-                    for (Reservation reservation : user.getReservations()) {
-                        response.addReservation(reservation.getId(), reservation.getTime());
-                    }
+        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+        if (user != null) {
+            GetReservationResponseBody response = new GetReservationResponseBody();
+            // if contains date
+            if (body.getDate().isPresent()) {
+                LocalDate date = body.getDate().get();
+                for (Reservation reservation : getUserReservationsByDate(user, date)) {
+                    response.addReservation(reservation.getId(), reservation.getTime());
                 }
-                return new ResponseEntity<GetReservationResponseBody>(response, HttpStatus.OK);
+            } else {
+                for (Reservation reservation : user.getReservations()) {
+                    response.addReservation(reservation.getId(), reservation.getTime());
+                }
             }
+            return new ResponseEntity<GetReservationResponseBody>(response, HttpStatus.OK);
         }
         return new ResponseEntity<String>("Unable to find the user.", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/reserve")
     public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
-        Optional<User> optUserInDB = userRepo.findById(body.getId());
-        if (optUserInDB.isPresent()) {
-            User user = optUserInDB.get();
-            if (user.getPassword().equals(body.getPassword())) {
-                ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user, body.getTime().toLocalDate());
-                if (reservationsOfADay.size() > 1) {
-                    return new ResponseEntity<String>("One day one reservations!", HttpStatus.FORBIDDEN);
-                } else {
-                    return new ResponseEntity<String>("reserved!", HttpStatus.OK);
-                }
+        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+        if (user.getPassword().equals(body.getPassword())) {
+            ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user,
+                    body.getTime().toLocalDate());
+            if (reservationsOfADay.size() > 1) {
+                return new ResponseEntity<String>("One day one reservations!", HttpStatus.FORBIDDEN);
+            } else {
+                return new ResponseEntity<String>("reserved!", HttpStatus.OK);
             }
         }
         return ResponseEntity.badRequest().body("Unable to correctly operate reservation.");
-    }
-
-    // for testing
-    @DeleteMapping("/deleteall")
-    public ResponseEntity<String> deleteAllUsers() {
-        userRepo.deleteAll();
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Request accepted.");
     }
 }
