@@ -65,18 +65,18 @@ public class UserController {
     }
 
     private static class ReserveResponseBody {
-        private int machine;
+        private int machine_num;
         
-        public ReserveResponseBody(int machine) {
-            this.machine = machine;
+        public ReserveResponseBody(int machine_num) {
+            this.machine_num = machine_num;
         }
 
-        public void setMachine_num(int machine) {
-            this.machine = machine;
+        public void setMachine_num(int machine_num) {
+            this.machine_num = machine_num;
         }
 
         public int getMachine_num() {
-            return machine;
+            return machine_num;
         }
     }
 
@@ -311,7 +311,7 @@ public class UserController {
         return new ResponseEntity<String>("Unable to find the user.", HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/reserve")
+    @PostMapping(value = "/reserve", produces = "application/json")
     public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
