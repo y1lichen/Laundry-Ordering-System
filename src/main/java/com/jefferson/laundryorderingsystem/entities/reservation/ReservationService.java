@@ -30,4 +30,8 @@ public class ReservationService {
 		return -1;
 	}
 
+	public void saveReservation(Reservation reservation) {
+		repo.save(reservation);
+	}
+
 }

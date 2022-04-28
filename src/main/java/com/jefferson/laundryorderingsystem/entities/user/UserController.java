@@ -334,8 +334,7 @@ public class UserController {
                 LocalDateTime time = body.getTime();
                 int machineNum = reservationService.getMachineNum(time);
                 Reservation reservation = new Reservation(time, user, machineNum);
-                user.addReservations(reservation);
-                userService.saveUser(user);
+                reservationService.saveReservation(reservation);
                 ReserveResponseBody response = new ReserveResponseBody(machineNum);
                 return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
             }
