@@ -5,9 +5,8 @@ import javax.validation.constraints.NotBlank;
 
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -24,7 +23,7 @@ public class User {
 
     @OneToMany(mappedBy = "reserveUser")
     @Column(name = "reservations")
-    private Set<Reservation> reservations;
+    private ArrayList<Reservation> reservations;
 
     // constructor
     public User() {
@@ -35,7 +34,7 @@ public class User {
         this.password = password;
         this.credit = 5;
         this.isLogin = false;
-        this.reservations = new HashSet<>();
+        this.reservations = new ArrayList<>();
     }
 
     public void setId(int id) {
@@ -70,11 +69,11 @@ public class User {
         this.isLogin = loggedIn;
     }
 
-    public Set<Reservation> getReservations() {
+    public ArrayList<Reservation> getReservations() {
         return reservations;
     }
 
-    public void setReservations(Set<Reservation> reservations) {
+    public void setReservations(ArrayList<Reservation> reservations) {
         this.reservations = reservations;
     }
 
