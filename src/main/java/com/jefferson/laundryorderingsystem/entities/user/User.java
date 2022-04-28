@@ -6,6 +6,7 @@ import javax.validation.constraints.NotBlank;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -23,7 +24,7 @@ public class User {
 
     @OneToMany(mappedBy = "reserveUser")
     @Column(name = "reservations")
-    private ArrayList<Reservation> reservations;
+    private List<Reservation> reservations;
 
     // constructor
     public User() {
