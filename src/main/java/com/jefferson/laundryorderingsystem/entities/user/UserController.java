@@ -65,18 +65,18 @@ public class UserController {
     }
 
     private static class ReserveResponseBody {
-        private int machine_num;
+        private int machine;
         
-        public ReserveResponseBody(int machine_num) {
-            this.machine_num = machine_num;
+        public ReserveResponseBody(int machine) {
+            this.machine = machine;
         }
 
-        public void setMachine_num(int machine_num) {
-            this.machine_num = machine_num;
+        public void setMachine_num(int machine) {
+            this.machine = machine;
         }
 
         public int getMachine_num() {
-            return machine_num;
+            return machine;
         }
     }
 
@@ -290,16 +290,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to set credit.");
     }
 
-    private ArrayList<Reservation> getUserReservationsByDate(User user, LocalDate date) {
-        ArrayList<Reservation> result = new ArrayList<>();
-        for (Reservation reservation : user.getReservations()) {
-            if (reservation.getTime().toLocalDate() == date) {
-                result.add(reservation);
-            }
-        }
-        return result;
-    }
-
     @PostMapping(value = "/get-user-reservations", produces = "application/json")
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
@@ -308,7 +298,7 @@ public class UserController {
             // if contains date
             if (body.getDate().isPresent()) {
                 LocalDate date = body.getDate().get();
-                for (Reservation reservation : getUserReservationsByDate(user, date)) {
+                for (Reservation reservation : userService.getUserReservationsByDate(user, date)) {
                     response.addReservation(reservation.getId(), reservation.getTime());
                 }
             } else {

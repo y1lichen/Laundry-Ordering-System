@@ -1,7 +1,10 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
+
+import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,16 @@ public class UserService {
 
 	public void deleteUser(User user) {
 		repo.delete(user);
+	}
+
+	public ArrayList<Reservation> getUserReservationsByDate(User user, LocalDate date) {
+		ArrayList<Reservation> result = new ArrayList<>();
+		for (Reservation reservation : user.getReservations()) {
+			if (reservation.getTime().toLocalDate() == date) {
+				result.add(reservation);
+			}
+		}
+		return result;
 	}
 
 }
