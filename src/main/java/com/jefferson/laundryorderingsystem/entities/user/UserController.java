@@ -259,7 +259,7 @@ public class UserController {
 
     @PostMapping("/set-credit")
     public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), user.getPassword());
+        User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
             int originCredit = user.getCredit();
             if (body.isIncrease()) {
