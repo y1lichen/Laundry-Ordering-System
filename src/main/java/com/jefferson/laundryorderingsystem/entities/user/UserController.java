@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -312,7 +313,7 @@ public class UserController {
                 reservationService.saveReservation(reservation);
                 Map<String, Object> response = new HashMap<>();
                 response.put("machine_num", machineNum);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return ResponseEntity.ok(response);
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
