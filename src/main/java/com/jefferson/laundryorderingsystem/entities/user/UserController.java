@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -61,22 +62,6 @@ public class UserController {
 
         public LocalDateTime getTime() {
             return time;
-        }
-    }
-
-    private static class ReserveResponseBody {
-        private int machine_num;
-        
-        public ReserveResponseBody(int machine_num) {
-            this.machine_num = machine_num;
-        }
-
-        public void setMachine_num(int machine_num) {
-            this.machine_num = machine_num;
-        }
-
-        public int getMachine_num() {
-            return machine_num;
         }
     }
 
@@ -325,8 +310,9 @@ public class UserController {
                 int machineNum = reservationService.getMachineNum(time);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
-                ReserveResponseBody response = new ReserveResponseBody(machineNum);
-                return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
+                Map<String, Object> response = new HashMap<>();
+                response.put("machine_num", machineNum);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
