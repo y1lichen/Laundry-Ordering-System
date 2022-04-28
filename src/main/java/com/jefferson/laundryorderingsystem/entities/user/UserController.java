@@ -315,7 +315,7 @@ public class UserController {
     public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
-            ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user,
+            ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
                     body.getTime().toLocalDate());
             if (reservationsOfADay.size() > 1) {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
