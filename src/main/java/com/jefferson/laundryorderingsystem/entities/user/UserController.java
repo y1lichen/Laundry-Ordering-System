@@ -253,13 +253,13 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@Valid @RequestBody User user) {
-        User user = userService.validAndGetUser(user.getId(), user.getPassword());
+    public ResponseEntity<String> deleteUser(@Valid @RequestBody User body) {
+        User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
             userService.deleteUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully delete user.");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to delete user.")
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to delete user.");
     }
 
     @PostMapping("/change-password")
