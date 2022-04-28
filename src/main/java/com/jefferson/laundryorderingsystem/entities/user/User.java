@@ -78,6 +78,10 @@ public class User {
         this.reservations = reservations;
     }
 
+    public void addReservations(Reservation reservation) {
+        this.reservations.add(reservation);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object)

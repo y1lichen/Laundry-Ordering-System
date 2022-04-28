@@ -1,5 +1,6 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,4 +33,5 @@ public class UserService {
 	public void deleteUser(User user) {
 		repo.delete(user);
 	}
+
 }

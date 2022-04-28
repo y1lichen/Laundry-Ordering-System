@@ -39,9 +39,10 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(@NotBlank LocalDateTime time, @NotBlank User user) {
+    public Reservation(@NotBlank LocalDateTime time, @NotBlank User user, @NotBlank int machine) {
         this.time = time;
         this.reserveUser = user;
+        this.machine = machine;
     }
 
     public int getId() {

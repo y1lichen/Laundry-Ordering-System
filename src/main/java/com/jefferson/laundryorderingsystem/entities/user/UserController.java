@@ -64,6 +64,22 @@ public class UserController {
         }
     }
 
+    private static class ReserveResponseBody {
+        private int machine_num;
+        
+        public ReserveResponseBody(int machine_num) {
+            this.machine_num = machine_num;
+        }
+
+        public void setMachine_num(int machine_num) {
+            this.machine_num = machine_num;
+        }
+
+        public int getMachine_num() {
+            return machine_num;
+        }
+    }
+
     private static class GetReservationRequestBody {
         private int id;
         private String password;
@@ -306,7 +322,7 @@ public class UserController {
     }
 
     @PostMapping("/reserve")
-    public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
+    public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
             ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user,
@@ -314,7 +330,14 @@ public class UserController {
             if (reservationsOfADay.size() > 1) {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             } else {
-                return new ResponseEntity<String>("reserved!", HttpStatus.OK);
+                // add reservation
+                LocalDateTime time = body.getTime();
+                int machineNum = reservationService.getMachineNum(time);
+                Reservation reservation = new Reservation(time, user, machineNum);
+                user.addReservations(reservation);
+                userService.saveUser(user);
+                ReserveResponseBody response = new ReserveResponseBody(machineNum);
+                return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
