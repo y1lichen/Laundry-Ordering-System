@@ -195,20 +195,20 @@ public class UserController {
     }
 
     private static class ReserveResponseBody {
-        private int machine_num;
+        private int machineNum;
         private String message;
 
-        public ReserveResponseBody(int machine_num) {
-            this.machine_num = machine_num;
+        public ReserveResponseBody(int machineNum) {
+            this.machineNum = machineNum;
             this.message = "Successfully get the reservation.";
         }
 
-        public void setMachine_num(int machine_num) {
-            this.machine_num = machine_num;
+        public void setMachineNum(int machineNum) {
+            this.machineNum = machineNum;
         }
 
-        public int getMachine_num() {
-            return machine_num;
+        public int getMachineNum() {
+            return machineNum;
         }
 
         public void setMessage(String message) {
