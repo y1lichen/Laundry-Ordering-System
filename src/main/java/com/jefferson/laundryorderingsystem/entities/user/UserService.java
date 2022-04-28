@@ -29,12 +29,7 @@ public class UserService {
 		return repo.findById(id);
 	}
 
-	public int deleteUser(int id, String password) {
-		User user = validAndGetUser(id, password);
-		if (user != null) {
-			repo.delete(user);
-			return 1;
-		}
-		return -1;
+	public void deleteUser(User user) {
+		repo.delete(user);
 	}
 }

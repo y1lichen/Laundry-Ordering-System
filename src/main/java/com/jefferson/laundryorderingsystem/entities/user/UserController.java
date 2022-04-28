@@ -210,7 +210,7 @@ public class UserController {
                 return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -222,7 +222,7 @@ public class UserController {
             userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
         }
-        return ResponseEntity.badRequest().body("Unable to login.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to login.");
     }
 
     @PostMapping("/logout")
@@ -233,16 +233,17 @@ public class UserController {
             userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully logout.");
         }
-        return ResponseEntity.badRequest().body("Unable to logout.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to logout.");
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@Valid @RequestBody User user) {
-        int result = userService.deleteUser(user.getId(), user.getPassword());
-        if (result == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body("Successfully to delete user.");
+        User user = userService.validAndGetUser(user.getId(), user.getPassword());
+        if (user != null) {
+            userService.deleteUser(user);
+            return ResponseEntity.status(HttpStatus.OK).body("Successfully delete user.");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to delete user.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to delete user.")
     }
 
     @PostMapping("/change-password")
@@ -254,7 +255,7 @@ public class UserController {
             userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ubable to change password.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ubable to change password.");
     }
 
     @PostMapping("/set-credit")
@@ -270,7 +271,7 @@ public class UserController {
             userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Credit set!");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to set credit.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to set credit.");
     }
 
     private ArrayList<Reservation> getUserReservationsByDate(User user, LocalDate date) {
@@ -307,15 +308,15 @@ public class UserController {
     @PostMapping("/reserve")
     public ResponseEntity<String> reserve(@Valid @RequestBody ReserveRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
-        if (user.getPassword().equals(body.getPassword())) {
+        if (user != null) {
             ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user,
                     body.getTime().toLocalDate());
             if (reservationsOfADay.size() > 1) {
-                return new ResponseEntity<String>("One day one reservations!", HttpStatus.FORBIDDEN);
+                return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             } else {
                 return new ResponseEntity<String>("reserved!", HttpStatus.OK);
             }
         }
-        return ResponseEntity.badRequest().body("Unable to correctly operate reservation.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to correctly operate reservation.");
     }
 }
