@@ -14,9 +14,12 @@ import javax.validation.constraints.NotBlank;
 
 import com.jefferson.laundryorderingsystem.entities.user.User;
 
-@Entity(name ="reservations")
+@Entity(name = "reservations")
 @Table(name = "reservations")
 public class Reservation {
+
+    // total amount of laundry machine
+    public static final int totalMachine = 18;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,15 +35,14 @@ public class Reservation {
     @JoinColumn(name = "user_id")
     private User reserveUser;
 
-
     // constructor
-    public Reservation() {}
+    public Reservation() {
+    }
 
     public Reservation(@NotBlank LocalDateTime time, @NotBlank User user) {
         this.time = time;
         this.reserveUser = user;
     }
-
 
     public int getId() {
         return id;

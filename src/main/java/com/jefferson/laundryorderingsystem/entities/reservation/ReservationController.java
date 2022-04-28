@@ -18,8 +18,6 @@ public class ReservationController {
 
     @Autowired
     private ReservationService service;
-    // total amount of laundry machine
-    private final int totalMachine = 18;
 
     private static String[] possibleTime = { "16:00:00", "16:40:00", "17:20:00", "18:00:00", "18:40:00",
             "19:20:00", "20:00:00", "20:40:00", "21:20:00", "22:00:00", "22:40:00", "23:20:00" };
@@ -53,7 +51,7 @@ public class ReservationController {
         for (String element : possibleTime) {
             LocalDateTime localDateTime = LocalDateTime.parse(String.format("%sT%s", date, element));
             List<Reservation> reservationsOfSpecificTime = service.getReservationsOfSpecificTime(localDateTime);
-            if (reservationsOfSpecificTime.size() < totalMachine) {
+            if (reservationsOfSpecificTime.size() < Reservation.totalMachine) {
                 availableTimeList.add(String.format("%s %s", date, element));
             }
         }
