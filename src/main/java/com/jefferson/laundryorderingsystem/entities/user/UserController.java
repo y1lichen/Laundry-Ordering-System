@@ -194,6 +194,32 @@ public class UserController {
         }
     }
 
+    private static class ReserveResponseBody {
+        private int machine_num;
+        private String message;
+
+        public ReserveResponseBody(int machine_num) {
+            this.machine_num = machine_num;
+            this.message = "Successfully get the reservation.";
+        }
+
+        public void setMachine_num(int machine_num) {
+            this.machine_num = machine_num;
+        }
+
+        public int getMachine_num() {
+            return machine_num;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
+
     // create User
     @PostMapping(value = "/create", produces = "application/json")
     public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
@@ -311,7 +337,7 @@ public class UserController {
                 int machineNum = reservationService.getMachineNum(time);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
-                Map<String, Integer> response = Collections.singletonMap("machine_num", machineNum);
+                ReserveResponseBody response = new ReserveResponseBody(machineNum);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
