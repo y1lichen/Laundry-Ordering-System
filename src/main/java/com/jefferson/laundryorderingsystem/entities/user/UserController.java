@@ -166,32 +166,6 @@ public class UserController {
         }
     }
 
-    private static class ReserveResponseBody {
-        private int machineNum;
-        private String message;
-
-        public ReserveResponseBody(int machineNum) {
-            this.machineNum = machineNum;
-            this.message = "Successfully get the reservation.";
-        }
-
-        public void setMachineNum(int machineNum) {
-            this.machineNum = machineNum;
-        }
-
-        public int getMachineNum() {
-            return machineNum;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
-
     // create User
     @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
@@ -300,8 +274,10 @@ public class UserController {
                     return new ResponseEntity<String>("Unable to reserve.", HttpStatus.EXPECTATION_FAILED);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
-                ReserveResponseBody response = new ReserveResponseBody(machineNum);
-                return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("status", HttpStatus.OK);
+                map.put("machineNum", machineNum);
+                return new ResponseEntity<Object>(map, HttpStatus.OK); 
             } else {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             }
