@@ -283,6 +283,6 @@ public class UserController {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             }
         }
-        return new ResponseEntity<String>("Unable to correctly operate reservation.", HttpStatus.EXPECTATION_FAILED);
+        return new ResponseEntity<String>("Unable to correctly operate reservation.", HttpStatus.UNAUTHORIZED);
     }
 }
