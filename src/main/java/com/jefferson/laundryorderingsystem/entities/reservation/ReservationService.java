@@ -12,18 +12,13 @@ public class ReservationService {
     @Autowired
     ReservationRepo repo;
 
-    private class ReservationResponse {
-    	int machineId;
-    	String response;
-    }
-
 	public List<Reservation> getReservationsOfSpecificTime(LocalDateTime time) {
 		return repo.findAllByTime(time);
 	}
 
 	public int getMachineNum(LocalDateTime time) {
 		for(int i=1; i<Reservation.totalMachine+1; i++) {
-			if (repo.findByTimeAndMachine(time, i) == null) {
+			if (repo.findByTimeAndMachine(time, i).isEmpty()) {
 				return i;
 			}
 		}

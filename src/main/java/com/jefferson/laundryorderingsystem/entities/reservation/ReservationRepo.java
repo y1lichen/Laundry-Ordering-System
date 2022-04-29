@@ -2,6 +2,7 @@ package com.jefferson.laundryorderingsystem.entities.reservation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +16,5 @@ public interface ReservationRepo extends JpaRepository<Reservation, Integer> {
     List<Reservation> findAllByTime(@Param("time") LocalDateTime localDateTime);
 
     @Query("SELECT r from reservations r WHERE r.time=time AND r.machine=machine")
-    Reservation findByTimeAndMachine(@Param("time") LocalDateTime localDateTime, @Param("machine") int machine);
+    Optional<Reservation> findByTimeAndMachine(@Param("time") LocalDateTime localDateTime, @Param("machine") int machine);
 }

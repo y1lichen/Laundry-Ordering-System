@@ -3,9 +3,7 @@ package com.jefferson.laundryorderingsystem.entities.user;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -329,16 +327,17 @@ public class UserController {
         if (user != null) {
             ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
                     body.getTime().toLocalDate());
-            if (reservationsOfADay.size() >= 1) {
-                return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
-            } else {
+            if (reservationsOfADay.size() < 1) {
                 // add reservation
                 LocalDateTime time = body.getTime();
                 int machineNum = reservationService.getMachineNum(time);
+                if (machineNum < 0) return new ResponseEntity<String>("Unable to reserve.", HttpStatus.EXPECTATION_FAILED);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
                 ReserveResponseBody response = new ReserveResponseBody(machineNum);
                 return new ResponseEntity<ReserveResponseBody>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             }
         }
         return new ResponseEntity<String>("Unable to correctly operate reservation.", HttpStatus.EXPECTATION_FAILED);
