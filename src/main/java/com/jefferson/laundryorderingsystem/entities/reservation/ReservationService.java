@@ -18,7 +18,7 @@ public class ReservationService {
 
 	public int getMachineNum(LocalDateTime time) {
 		for(int i=1; i<Reservation.totalMachine+1; i++) {
-			if (repo.findByTimeAndMachine(time, i).isEmpty()) {
+			if (repo.findByTimeAndMachine(time, i) == null) {
 				return i;
 			}
 		}

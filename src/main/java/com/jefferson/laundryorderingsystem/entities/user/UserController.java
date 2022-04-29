@@ -272,7 +272,7 @@ public class UserController {
                 LocalDateTime time = body.getTime();
                 int machineNum = reservationService.getMachineNum(time);
                 if (machineNum < 0)
-                    return new ResponseEntity<String>("Unable to reserve.", HttpStatus.EXPECTATION_FAILED);
+                    return new ResponseEntity<String>("Unable to reserve.", HttpStatus.INTERNAL_SERVER_ERROR);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
                 Map<String, Object> map = new HashMap<String, Object>();
