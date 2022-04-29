@@ -154,32 +154,6 @@ public class UserController {
         }
     }
 
-    private static class CreateUserResponseBody {
-        private int replyCode;
-        private String description;
-
-        public CreateUserResponseBody(int replyCode, String description) {
-            this.replyCode = replyCode;
-            this.description = description;
-        }
-
-        public void setReplyCode(int replyCode) {
-            this.replyCode = replyCode;
-        }
-
-        public int getReplyCode() {
-            return replyCode;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
     private static class GetReservationResponseBody {
         private HashMap<Integer, LocalDateTime> reservationHasMap = new HashMap<>();
 
@@ -219,24 +193,15 @@ public class UserController {
     }
 
     // create User
-    @PostMapping(value = "/create", produces = "application/json")
-    public ResponseEntity<?> createUser(@Valid @RequestBody User newUser) {
+    @PostMapping(value = "/create")
+    public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userService.getUserById(newUser.getId());
-        CreateUserResponseBody responseBody = new CreateUserResponseBody(-1, "Unable to create user.");
-        try {
-            if (user.isEmpty()) {
-                newUser.setIsLogin(true);
-                userService.saveUser(newUser);
-                responseBody.setReplyCode(1);
-                responseBody.setDescription("Successfully create user.");
-                return new ResponseEntity<>(responseBody, HttpStatus.OK);
-            } else {
-                responseBody.setReplyCode(0);
-                responseBody.setDescription("User existed.");
-                return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (user.isEmpty()) {
+            newUser.setIsLogin(true);
+            userService.saveUser(newUser);
+            return new ResponseEntity<String>("Successfully create user.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("User already exist.", HttpStatus.CONFLICT);
         }
     }
 
@@ -331,7 +296,8 @@ public class UserController {
                 // add reservation
                 LocalDateTime time = body.getTime();
                 int machineNum = reservationService.getMachineNum(time);
-                if (machineNum < 0) return new ResponseEntity<String>("Unable to reserve.", HttpStatus.EXPECTATION_FAILED);
+                if (machineNum < 0)
+                    return new ResponseEntity<String>("Unable to reserve.", HttpStatus.EXPECTATION_FAILED);
                 Reservation reservation = new Reservation(time, user, machineNum);
                 reservationService.saveReservation(reservation);
                 ReserveResponseBody response = new ReserveResponseBody(machineNum);
