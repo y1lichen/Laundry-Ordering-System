@@ -233,21 +233,23 @@ public class UserController {
         if (user != null) {
             // if contains date
             ArrayList<Object> result = new ArrayList<>();
+            ArrayList<Reservation> reservations;
             if (!(body.getDate().isBlank())) {
                 LocalDate date = LocalDate.parse(body.getDate());
-                for (Reservation reservation : userService.getUserReservationsByDate(user, date)) {
-                    Map<Integer, Object> item = new HashMap<Integer,Object>() {
-                        {
-                            Map<String, Object> machineAndTime = new HashMap<>();
-                            machineAndTime.put("machine_num", reservation.getMachine());
-                            machineAndTime.put("time", reservation.getTime());
-                            put(reservation.getId(), machineAndTime);
-                        }
-                    };
-                }
+                reservations = userService.getUserReservationsByDate(user, date);
             } else {
-                for (Reservation reservation : user.getReservations()) {
-                }
+                reservations = new ArrayList<>(user.getReservations());
+            }
+            for (Reservation reservation : reservations) {
+                Map<Integer, Object> item = new HashMap<Integer,Object>() {
+                    {
+                        Map<String, Object> machineAndTime = new HashMap<>();
+                        machineAndTime.put("machine_num", reservation.getMachine());
+                        machineAndTime.put("time", reservation.getTime());
+                        put(reservation.getId(), machineAndTime);
+                    }
+                };
+                result.add(item);
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
