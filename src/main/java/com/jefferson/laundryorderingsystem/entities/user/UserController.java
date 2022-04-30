@@ -68,7 +68,7 @@ public class UserController {
     private static class GetReservationRequestBody {
         private int id;
         private String password;
-        private Optional<LocalDate> date;
+        private String date;
 
         public int getId() {
             return id;
@@ -86,12 +86,12 @@ public class UserController {
             this.password = password;
         }
 
-        public Optional<LocalDate> getDate() {
-            return date;
+        public void setDate(String date) {
+            this.date = date;
         }
 
-        public void setDate(Optional<LocalDate> date) {
-            this.date = date;
+        public String getDate() {
+            return date;
         }
     }
 
@@ -246,8 +246,8 @@ public class UserController {
         if (user != null) {
             GetReservationResponseBody response = new GetReservationResponseBody();
             // if contains date
-            if (body.getDate().isPresent()) {
-                LocalDate date = body.getDate().get();
+            if (!(body.getDate().isBlank())) {
+                LocalDate date = LocalDate.parse(body.getDate());
                 for (Reservation reservation : userService.getUserReservationsByDate(user, date)) {
                     response.addReservation(reservation.getId(), reservation.getTime());
                 }
@@ -278,7 +278,7 @@ public class UserController {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("status", HttpStatus.OK);
                 map.put("machineNum", machineNum);
-                return new ResponseEntity<Object>(map, HttpStatus.OK); 
+                return new ResponseEntity<Object>(map, HttpStatus.OK);
             } else {
                 return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
             }
