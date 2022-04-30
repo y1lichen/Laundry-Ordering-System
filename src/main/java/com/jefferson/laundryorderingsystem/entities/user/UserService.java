@@ -40,7 +40,7 @@ public class UserService {
 	public ArrayList<Reservation> getUserReservationsByDate(User user, LocalDate date) {
 		ArrayList<Reservation> result = new ArrayList<>();
 		for (Reservation reservation : user.getReservations()) {
-			if (reservation.getTime().toLocalDate() == date) {
+			if (reservation.getTime().toLocalDate().equals(date)) {
 				result.add(reservation);
 			}
 		}
