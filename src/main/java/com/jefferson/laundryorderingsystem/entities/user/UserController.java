@@ -241,12 +241,13 @@ public class UserController {
                 reservations = new ArrayList<>(user.getReservations());
             }
             for (Reservation reservation : reservations) {
-                Map<Integer, Object> item = new HashMap<Integer,Object>() {
+                Map<String, Object> item = new HashMap<String,Object>() {
                     {
                         Map<String, Object> machineAndTime = new HashMap<>();
                         machineAndTime.put("machine_num", reservation.getMachine());
                         machineAndTime.put("time", reservation.getTime());
-                        put(reservation.getId(), machineAndTime);
+                        put("id", reservation.getId());
+                        put("info", machineAndTime);
                     }
                 };
                 result.add(item);
