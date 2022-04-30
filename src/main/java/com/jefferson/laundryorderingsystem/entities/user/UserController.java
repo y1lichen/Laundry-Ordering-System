@@ -156,14 +156,14 @@ public class UserController {
     }
 
     private static class GetReservationResponseBody {
-        private HashMap<Integer, LocalDateTime> reservationHasMap = new HashMap<>();
+        private HashMap<Integer, LocalDateTime> reservations = new HashMap<>();
 
         public void addReservation(int id, LocalDateTime time) {
-            reservationHasMap.put(id, time);
+            reservations.put(id, time);
         }
 
-        public HashMap<Integer, LocalDateTime> getReservationHasMap() {
-            return reservationHasMap;
+        public HashMap<Integer, LocalDateTime> getReservations() {
+            return reservations;
         }
     }
 
