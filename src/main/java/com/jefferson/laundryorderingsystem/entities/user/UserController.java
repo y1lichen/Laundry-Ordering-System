@@ -155,20 +155,8 @@ public class UserController {
         }
     }
 
-    private static class GetReservationResponseBody {
-        private HashMap<Integer, LocalDateTime> reservations = new HashMap<>();
+    /create User @PostMapping(value="/create")
 
-        public void addReservation(int id, LocalDateTime time) {
-            reservations.put(id, time);
-        }
-
-        public HashMap<Integer, LocalDateTime> getReservations() {
-            return reservations;
-        }
-    }
-
-    // create User
-    @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userService.getUserById(newUser.getId());
         if (user.isEmpty()) {
@@ -244,19 +232,25 @@ public class UserController {
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
         if (user != null) {
-            GetReservationResponseBody response = new GetReservationResponseBody();
             // if contains date
+            ArrayList<Object> result = new ArrayList<>();
             if (!(body.getDate().isBlank())) {
                 LocalDate date = LocalDate.parse(body.getDate());
                 for (Reservation reservation : userService.getUserReservationsByDate(user, date)) {
-                    response.addReservation(reservation.getId(), reservation.getTime());
+                    Map<Integer, Object> item = new HashMap<Integer,Object>() {
+                        {
+                            Map<String, Object> machineAndTime = new HashMap<>();
+                            machineAndTime.put("machine_num", reservation.getMachine());
+                            machineAndTime.put("time", reservation.getTime());
+                            put(reservation.getId(), machineAndTime);
+                        }
+                    };
                 }
             } else {
                 for (Reservation reservation : user.getReservations()) {
-                    response.addReservation(reservation.getId(), reservation.getTime());
                 }
             }
-            return new ResponseEntity<GetReservationResponseBody>(response, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
         return new ResponseEntity<String>("Unable to find the user.", HttpStatus.NOT_FOUND);
     }
