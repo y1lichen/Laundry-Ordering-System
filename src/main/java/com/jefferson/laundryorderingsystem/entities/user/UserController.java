@@ -155,8 +155,7 @@ public class UserController {
         }
     }
 
-    /create User @PostMapping(value="/create")
-
+    @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
         Optional<User> user = userService.getUserById(newUser.getId());
         if (user.isEmpty()) {
