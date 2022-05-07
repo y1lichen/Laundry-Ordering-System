@@ -4,10 +4,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jefferson.laundryorderingsystem.entities.user.User;
+import com.jefferson.laundryorderingsystem.entities.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,8 +21,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "reservations")
 public class ReservationController {
 
+    private class DeleteReservationRequest {
+        int userId;
+        String password;
+        int reservationId;
+
+        public int getUserId() {
+            return userId;
+        }
+
+        public void setUserId(int userId) {
+            this.userId = userId;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public int getReservationId() {
+            return reservationId;
+        }
+
+        public void setReservationId(int reservationId) {
+            this.reservationId = reservationId;
+        }
+    }
+
     @Autowired
     private ReservationService service;
+    @Autowired
+    private UserService userService;
 
     private static String[] possibleTime = { "16:00:00", "16:40:00", "17:20:00", "18:00:00", "18:40:00",
             "19:20:00", "20:00:00", "20:40:00", "21:20:00", "22:00:00", "22:40:00", "23:20:00" };
@@ -67,4 +104,11 @@ public class ReservationController {
         }
     }
 
+    @PostMapping("delete")
+    public ResponseEntity<?> deleteReservation(@RequestBody DeleteReservationRequest body) {
+        User user = userService.validAndGetUser(body.getUserId(), body.getPassword());
+        if (user == null) return new ResponseEntity<String>("Unable to delete reservation", HttpStatus.UNAUTHORIZED);
+        service.deleteReservationService(body.getReservationId());
+        return new ResponseEntity<String>("Successfully delete the reservation.", HttpStatus.OK);
+    }
 }

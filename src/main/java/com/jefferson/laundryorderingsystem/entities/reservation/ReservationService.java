@@ -29,4 +29,7 @@ public class ReservationService {
 		repo.save(reservation);
 	}
 
+	public void deleteReservationService(int id) {
+		repo.deleteById(id);
+	}
 }
