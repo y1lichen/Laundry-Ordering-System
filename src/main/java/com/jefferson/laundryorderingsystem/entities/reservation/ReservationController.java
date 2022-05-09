@@ -26,7 +26,7 @@ public class ReservationController {
         String password;
         int reservationId;
 
-        public DeleteReservationRequest(int userId, String password, int reservationId) {
+        public static DeleteReservationRequest(int userId, String password, int reservationId) {
             this.userId = userId;
             this.password = password;
             this.reservationId = reservationId;
