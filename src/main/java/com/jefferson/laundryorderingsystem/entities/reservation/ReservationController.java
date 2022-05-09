@@ -26,12 +26,6 @@ public class ReservationController {
         String password;
         int reservationId;
 
-        public DeleteReservationRequest(int userId, String password, int reservationId) {
-            this.userId = userId;
-            this.password = password;
-            this.reservationId = reservationId;
-        }
-
         public int getUserId() {
             return userId;
         }
@@ -113,7 +107,7 @@ public class ReservationController {
     @PostMapping("delete")
     public ResponseEntity<?> deleteReservation(@RequestBody DeleteReservationRequest body) {
         User user = userService.validAndGetUser(body.getUserId(), body.getPassword());
-        if (user == null) return new ResponseEntity<String>("Unable to delete reservation", HttpStatus.UNAUTHORIZED);
+        if (user == null) return new ResponseEntity<String>("Unathorized, unable to delete reservation", HttpStatus.UNAUTHORIZED);
         service.deleteReservationService(body.getReservationId());
         return new ResponseEntity<String>("Successfully delete the reservation.", HttpStatus.OK);
     }
