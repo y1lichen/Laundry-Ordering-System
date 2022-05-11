@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+import com.jefferson.laundryorderingsystem.utils.ApplicationPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,13 @@ public class UserService {
 	@Autowired
 	private UserRepo repo;
 
+	private ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
+
 	public User validAndGetUser(int id, String password) {
 		Optional<User> optUserInDB = repo.findById(id);
 		if (optUserInDB.isPresent()) {
 			User userInDB = optUserInDB.get();
-			if (userInDB.getPassword().equals(password)) {
+			if (passwordEncoder.matches(password, userInDB.getPassword())) {
 				return userInDB;
 			}
 		}
@@ -45,6 +48,18 @@ public class UserService {
 			}
 		}
 		return result;
+	}
+
+	public int regiser(User newUser) {
+        Optional<User> user = getUserById(newUser.getId());
+        if (user.isEmpty()) {
+			newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+            newUser.setIsLogin(false);
+            saveUser(newUser);
+            return 1;
+        } else {
+            return -1;
+        }
 	}
 
 }

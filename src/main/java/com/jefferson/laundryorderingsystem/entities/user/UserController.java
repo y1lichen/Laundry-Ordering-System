@@ -157,10 +157,8 @@ public class UserController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
-        Optional<User> user = userService.getUserById(newUser.getId());
-        if (user.isEmpty()) {
-            newUser.setIsLogin(true);
-            userService.saveUser(newUser);
+        int result = userService.regiser(newUser);
+        if (result > 0) {
             return new ResponseEntity<String>("Successfully create user.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("User already exist.", HttpStatus.CONFLICT);
