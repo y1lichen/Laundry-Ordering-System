@@ -50,10 +50,10 @@ public class UserService {
 		return result;
 	}
 
-	public int regiser(User newUser) {
-        Optional<User> user = getUserById(newUser.getId());
+	public int regiser(int id, String password) {
+        Optional<User> user = getUserById(id);
         if (user.isEmpty()) {
-			newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        	User newUser = new User(id, password);
             newUser.setIsLogin(false);
             saveUser(newUser);
             return 1;

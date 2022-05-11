@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -157,11 +156,11 @@ public class UserController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
-        int result = userService.regiser(newUser);
+        int result = userService.regiser(newUser.getId(), newUser.getPassword());
         if (result > 0) {
             return new ResponseEntity<String>("Successfully create user.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("User already exist.", HttpStatus.CONFLICT);
+            return new ResponseEntity<String>("User already exist.", HttpStatus.CONFLICT);
         }
     }
 
