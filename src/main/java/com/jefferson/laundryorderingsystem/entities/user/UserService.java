@@ -53,7 +53,7 @@ public class UserService {
 	public int regiser(int id, String password) {
         Optional<User> user = getUserById(id);
         if (user.isEmpty()) {
-        	User newUser = new User(id, password);
+        	User newUser = new User(id, passwordEncoder.encode(password));
             newUser.setIsLogin(false);
             saveUser(newUser);
             return 1;
