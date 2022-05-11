@@ -168,8 +168,8 @@ public class UserController {
     public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
         User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
         if (userInDB != null) {
-            user.setIsLogin(true);
-            userService.saveUser(user);
+            userInDB.setIsLogin(true);
+            userService.saveUser(userInDB);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to login.");
@@ -179,8 +179,8 @@ public class UserController {
     public ResponseEntity<String> logoutUser(@Valid @RequestBody User user) {
         User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
         if (userInDB != null) {
-            user.setIsLogin(false);
-            userService.saveUser(user);
+            userInDB.setIsLogin(false);
+            userService.saveUser(userInDB);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully logout.");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to logout.");
