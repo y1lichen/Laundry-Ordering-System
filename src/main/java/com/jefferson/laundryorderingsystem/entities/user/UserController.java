@@ -189,7 +189,7 @@ public class UserController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@Valid @RequestBody User body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
-        if (user != null) {
+        if (user != null && user.getIsLogin()) {
             userService.deleteUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully delete user.");
         }
@@ -199,7 +199,7 @@ public class UserController {
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getOldPassword());
-        if (user != null) {
+        if (user != null && user.getIsLogin()) {
             user.setPassword(body.getNewPassword());
             user.setIsLogin(false);
             userService.saveUser(user);
@@ -227,7 +227,7 @@ public class UserController {
     @PostMapping(value = "/get-user-reservations", produces = "application/json")
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
-        if (user != null) {
+        if (user != null && user.getIsLogin()) {
             // if contains date
             ArrayList<Object> result = new ArrayList<>();
             ArrayList<Reservation> reservations;
@@ -257,7 +257,7 @@ public class UserController {
     @PostMapping(value = "/reserve", produces = "application/json")
     public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
         User user = userService.validAndGetUser(body.getId(), body.getPassword());
-        if (user != null) {
+        if (user != null && user.getIsLogin()) {
             ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
                     body.getTime().toLocalDate());
             if (reservationsOfADay.size() < 1) {
