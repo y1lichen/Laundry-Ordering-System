@@ -24,7 +24,7 @@ public class LaundryOrderingSystemApplication {
 		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 		scheduler.start();
 		JobDetail jobDetail = newJob(CleanDatabaseJob.class).build();
-		Trigger trigger = newTrigger().startNow().withSchedule(cronSchedule("0 0 5pm * * ?").inTimeZone(TimeZone.getTimeZone("Asia/Taipei"))).build();
+		Trigger trigger = newTrigger().startNow().withSchedule(cronSchedule("30 17 * * * ?").inTimeZone(TimeZone.getTimeZone("Asia/Taipei"))).build();
 		scheduler.scheduleJob(jobDetail, trigger);
 	}
 
