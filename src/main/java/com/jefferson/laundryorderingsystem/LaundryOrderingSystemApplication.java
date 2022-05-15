@@ -4,6 +4,8 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.util.TimeZone;
+
 import com.jefferson.laundryorderingsystem.utils.CleanDatabaseJob;
 
 import org.quartz.JobDetail;
@@ -22,7 +24,7 @@ public class LaundryOrderingSystemApplication {
 		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 		scheduler.start();
 		JobDetail jobDetail = newJob(CleanDatabaseJob.class).build();
-		Trigger trigger = newTrigger().startNow().withSchedule(cronSchedule("0 0 5pm * * ?")).build();
+		Trigger trigger = newTrigger().startNow().withSchedule(cronSchedule("0 0 5pm * * ?").inTimeZone(TimeZone.getTimeZone("Asia/Taipei"))).build();
 		scheduler.scheduleJob(jobDetail, trigger);
 	}
 
