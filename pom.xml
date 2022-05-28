@@ -56,6 +56,10 @@
     		<version>2.1.5</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
