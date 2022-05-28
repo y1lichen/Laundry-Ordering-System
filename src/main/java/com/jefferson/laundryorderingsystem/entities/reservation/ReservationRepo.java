@@ -15,7 +15,7 @@ public interface ReservationRepo extends JpaRepository<Reservation, Integer> {
     @Query("SELECT r FROM reservations r WHERE r.time=time")
     List<Reservation> findAllByTime(@Param("time") LocalDateTime localDateTime);
 
-    @Query("SELECT r FROM reservations r WHERE r.time<time")
+    @Query("SELECT r FROM reservations r WHERE r.time<t:ime")
     List<Reservation> findAllByTimeBefore(@Param("time") LocalDateTime localDateTime);
 
     Optional<Reservation> findFirstByTimeAndMachine(LocalDateTime time, int machine);
