@@ -16,6 +16,10 @@ public class ReservationService {
 		return repo.findAllByTime(time);
 	}
 
+	public List<Reservation> getReservationsBeforeSpecificTime(LocalDateTime time) {
+		return repo.findAllByTimeBefore(time);
+	}
+
 	public int getMachineNum(LocalDateTime time) {
 		for(int i=1; i<Reservation.totalMachine+1; i++) {
 			if (repo.findFirstByTimeAndMachine(time, i).isEmpty()) {
