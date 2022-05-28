@@ -10,14 +10,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LaundryOrderingSystemApplication {
 
-	DataCleaner dataCleaner = new DataCleaner();
-
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(LaundryOrderingSystemApplication.class, args);
 	}
 
 	@PostConstruct
 	public void init() {
+		DataCleaner dataCleaner = new DataCleaner();
 		dataCleaner.removeExpiredReservation();
 	}
 

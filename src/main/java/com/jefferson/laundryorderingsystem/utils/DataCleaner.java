@@ -1,6 +1,8 @@
 package com.jefferson.laundryorderingsystem.utils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class DataCleaner {
     private ReservationService reservationService;
 
 	public void removeExpiredReservation() {
-		LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Taipei"));
+		LocalDateTime today = LocalDateTime.of(LocalDate.now(ZoneId.of("Asia/Taipei")), LocalTime.MIDNIGHT);
 		List<Reservation> expiredReservations = reservationService.getReservationsBeforeSpecificTime(today);
 		for (Reservation reservation : expiredReservations) {
 			int id = reservation.getId();
