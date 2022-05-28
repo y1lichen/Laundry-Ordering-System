@@ -10,18 +10,18 @@ import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataCleaner implements ApplicationListener<ContextRefreshedEvent> {
+public class DataCleaner implements ApplicationListener<ApplicationReadyEvent> {
 
 	@Autowired
     private ReservationService reservationService;
 
 	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+	public void onApplicationEvent(ApplicationReadyEvent event) {
 		LocalDateTime today = LocalDateTime.of(LocalDate.now(ZoneId.of("Asia/Taipei")), LocalTime.MIDNIGHT);
 		List<Reservation> expiredReservations = reservationService.getReservationsBeforeSpecificTime(today);
 		for (Reservation reservation : expiredReservations) {
