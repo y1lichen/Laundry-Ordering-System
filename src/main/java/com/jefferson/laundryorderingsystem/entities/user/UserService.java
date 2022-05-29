@@ -15,7 +15,7 @@ public class UserService {
 	@Autowired
 	private UserRepo repo;
 
-	private ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
+	private final ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
 
 	public User validAndGetUser(int id, String password) {
 		Optional<User> optUserInDB = repo.findById(id);

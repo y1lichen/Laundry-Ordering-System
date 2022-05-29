@@ -56,7 +56,7 @@ public class ReservationController {
     @Autowired
     private UserService userService;
 
-    private static String[] possibleTime = { "16:00:00", "16:40:00", "17:20:00", "18:00:00", "18:40:00",
+    private static final String[] possibleTime = { "16:00:00", "16:40:00", "17:20:00", "18:00:00", "18:40:00",
             "19:20:00", "20:00:00", "20:40:00", "21:20:00", "22:00:00", "22:40:00", "23:20:00" };
 
     private static class GetAvailableReservationsResponse {
