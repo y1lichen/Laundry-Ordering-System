@@ -50,6 +50,16 @@ public class UserService {
 		return result;
 	}
 
+	public int changePassword(int id, String oldPassword, String newPassword) {
+		User user = validAndGetUser(id, oldPassword);
+		if (user != null) {
+			user.setPassword(passwordEncoder.encode(newPassword));
+			saveUser(user);
+			return 1;
+		}
+		return -1;
+	}
+
 	public int regiser(int id, String password) {
         Optional<User> user = getUserById(id);
         if (user.isEmpty()) {

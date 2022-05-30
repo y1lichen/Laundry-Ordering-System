@@ -198,11 +198,7 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), body.getOldPassword());
-        if (user != null && user.getIsLogin()) {
-            user.setPassword(body.getNewPassword());
-            user.setIsLogin(false);
-            userService.saveUser(user);
+        if (userService.changePassword(body.getId(), body.getOldPassword(), body.getNewPassword())) {
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ubable to change password.");
