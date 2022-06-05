@@ -1,33 +1,23 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
+import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.Valid;
-
-import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
-import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
-
-import com.jefferson.laundryorderingsystem.utils.TokenGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
 
-    // using service of Reservations
-    @Autowired
-    private ReservationService reservationService;
 
     @Autowired
     private UserService userService;
@@ -197,7 +187,7 @@ public class UserController {
         }
     }
 
-        @PostMapping(value = "/create")
+    @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
         int result = userService.register(newUser.getId(), newUser.getPassword());
         if (result > 0) {
@@ -245,7 +235,7 @@ public class UserController {
         if (userService.changePassword(body.getId(), body.getOldPassword(), body.getNewPassword()) > 0) {
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ubable to change password.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to change password.");
     }
 
     @PostMapping("/set-credit")
@@ -296,26 +286,14 @@ public class UserController {
 
     @PostMapping(value = "/reserve", produces = "application/json")
     public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), body.getToken());
-        if (user != null && user.getIsLogin()) {
-            ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
-                    body.getTime().toLocalDate());
-            if (reservationsOfADay.size() < 1) {
-                // add reservation
-                LocalDateTime time = body.getTime();
-                int machineNum = reservationService.getMachineNum(time);
-                if (machineNum < 0)
-                    return new ResponseEntity<String>("Unable to reserve.", HttpStatus.INTERNAL_SERVER_ERROR);
-                Reservation reservation = new Reservation(time, user, machineNum);
-                reservationService.saveReservation(reservation);
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("status", HttpStatus.OK);
-                map.put("machineNum", machineNum);
-                return new ResponseEntity<Object>(map, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
-            }
+        Map<String, Object> map = userService.reserve(body.getId(), body.getToken(), body.getTime());
+        int status = (int) map.get("status");
+        if (status == HttpStatus.OK.value()) {
+            return new ResponseEntity<Object>(map, HttpStatus.OK);
+        } else if (status == HttpStatus.EXPECTATION_FAILED.value()) {
+            return new ResponseEntity<String>("One day one reservations!", HttpStatus.EXPECTATION_FAILED);
         }
         return new ResponseEntity<String>("Unable to correctly operate reservation.", HttpStatus.UNAUTHORIZED);
     }
+
 }

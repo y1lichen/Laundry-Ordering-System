@@ -1,20 +1,30 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
+import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 import com.jefferson.laundryorderingsystem.utils.ApplicationPasswordEncoder;
 
 import com.jefferson.laundryorderingsystem.utils.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 	@Autowired
 	private UserRepo repo;
+	// using service of Reservations
+	@Autowired
+	private ReservationService reservationService;
+
 
 	private final ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
 
@@ -104,5 +114,26 @@ public class UserService {
 			saveUser(user);
 		}
 		return result;
+	}
+
+	public Map<String, Object> reserve(int id, String token, LocalDateTime time){
+		User user = validByIdAndToken(id, token);
+		if (user != null && user.getIsLogin()) {
+			ArrayList<Reservation> reservationsOfADay = getUserReservationsByDate(user, time.toLocalDate());
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", HttpStatus.EXPECTATION_FAILED);
+			if (reservationsOfADay.size() < 1) {
+				// add reservation
+				int machineNum = reservationService.getMachineNum(time);
+				if (machineNum < 0)
+					return null;
+				Reservation reservation = new Reservation(time, user, machineNum);
+				reservationService.saveReservation(reservation);
+				map.put("status", HttpStatus.OK);
+				map.put("machineNum", machineNum);
+			}
+			return map;
+		}
+		return null;
 	}
 }
