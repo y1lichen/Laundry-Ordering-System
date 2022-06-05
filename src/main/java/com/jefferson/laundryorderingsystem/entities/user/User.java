@@ -26,7 +26,6 @@ public class User {
     private boolean isLogin;
 
     @ElementCollection
-    @CollectionTable(name="tokens")
     private List<String> tokens;
 
     @OneToMany(mappedBy = "reserveUser")
@@ -78,8 +77,8 @@ public class User {
         this.isLogin = loggedIn;
     }
 
-    public ArrayList<String> getTokens() {
-        return (ArrayList<String>) tokens;
+    public List<String> getTokens() {
+        return tokens;
     }
 
     public void setTokens(ArrayList<String> tokens) {
