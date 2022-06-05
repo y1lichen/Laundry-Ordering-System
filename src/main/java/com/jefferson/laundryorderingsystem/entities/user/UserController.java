@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 
+import com.jefferson.laundryorderingsystem.utils.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class UserController {
 
         private int id;
 
-        private String password;
+        private String token;
 
         private LocalDateTime time;
 
@@ -47,12 +48,12 @@ public class UserController {
             return id;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public String getToken() {
+            return token;
         }
 
-        public String getPassword() {
-            return password;
+        public void setToken(String token) {
+            this.token = token;
         }
 
         public void setTime(LocalDateTime time) {
@@ -66,7 +67,7 @@ public class UserController {
 
     private static class GetReservationRequestBody {
         private int id;
-        private String password;
+        private String token;
         private String date;
 
         public int getId() {
@@ -77,12 +78,12 @@ public class UserController {
             this.id = id;
         }
 
-        public String getPassword() {
-            return password;
+        public String getToken() {
+            return token;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setToken(String token) {
+            this.token = token;
         }
 
         public void setDate(String date) {
@@ -96,7 +97,7 @@ public class UserController {
 
     private static class SetCreditRequestBody {
         private int id;
-        private String password;
+        private String token;
         private boolean isIncrease;
 
         public int getId() {
@@ -107,12 +108,12 @@ public class UserController {
             this.id = id;
         }
 
-        public String getPassword() {
-            return password;
+        public String getToken() {
+            return token;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setToken(String token) {
+            this.token = token;
         }
 
         public void setIncrease(boolean increase) {
@@ -124,9 +125,30 @@ public class UserController {
         }
     }
 
+    private static class LogoutRequestBody {
+        private int id;
+        private String token;
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+    }
+
     private static class ChangePasswordRequestBody {
         private int id;
-        private String oldPassword;
+        private String token;
         private String newPassword;
 
         public void setId(int id) {
@@ -137,12 +159,13 @@ public class UserController {
             return id;
         }
 
-        public void setOldPassword(String oldPassword) {
-            this.oldPassword = oldPassword;
+
+        public void setToken(String token) {
+            this.token = token;
         }
 
-        public String getOldPassword() {
-            return oldPassword;
+        public String getToken() {
+            return token;
         }
 
         public void setNewPassword(String newPassword) {
@@ -154,9 +177,30 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/create")
+    private static class LoginResponse {
+       private String message = "Successfully login!";
+       private String token = "";
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+    }
+
+        @PostMapping(value = "/create")
     public ResponseEntity<String> createUser(@Valid @RequestBody User newUser) {
-        int result = userService.regiser(newUser.getId(), newUser.getPassword());
+        int result = userService.register(newUser.getId(), newUser.getPassword());
         if (result > 0) {
             return new ResponseEntity<String>("Successfully create user.", HttpStatus.OK);
         } else {
@@ -165,21 +209,22 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody User user) {
-        User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
-        if (userInDB != null) {
-            userInDB.setIsLogin(true);
-            userService.saveUser(userInDB);
-            return ResponseEntity.status(HttpStatus.OK).body("Successfully login.");
+    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) {
+        LoginResponse response = new LoginResponse();
+        String token = userService.login(user.getId(), user.getPassword());
+        if (token != null) {
+            response.setToken(token);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to login.");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logoutUser(@Valid @RequestBody User user) {
-        User userInDB = userService.validAndGetUser(user.getId(), user.getPassword());
+    public ResponseEntity<String> logoutUser(@Valid @RequestBody LogoutRequestBody body) {
+        User userInDB = userService.validByIdAndToken(body.getId(), body.getToken());
         if (userInDB != null) {
             userInDB.setIsLogin(false);
+            userService.removeToken(body.getId(), body.getToken());
             userService.saveUser(userInDB);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully logout.");
         }
@@ -187,8 +232,8 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@Valid @RequestBody User body) {
-        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+    public ResponseEntity<String> deleteUser(@Valid @RequestBody LogoutRequestBody body) {
+        User user = userService.validByIdAndToken(body.getId(), body.getToken());
         if (user != null && user.getIsLogin()) {
             userService.deleteUser(user);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully delete user.");
@@ -198,7 +243,7 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
-        if (userService.changePassword(body.getId(), body.getOldPassword(), body.getNewPassword()) > 0) {
+        if (userService.changePassword(body.getId(), body.getToken(), body.getNewPassword()) > 0) {
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ubable to change password.");
@@ -206,7 +251,7 @@ public class UserController {
 
     @PostMapping("/set-credit")
     public ResponseEntity<String> addCredit(@Valid @RequestBody SetCreditRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+        User user = userService.validByIdAndToken(body.getId(), body.getToken());
         if (user != null) {
             int originCredit = user.getCredit();
             if (body.isIncrease()) {
@@ -222,7 +267,7 @@ public class UserController {
 
     @PostMapping(value = "/get-user-reservations", produces = "application/json")
     public ResponseEntity<?> getUserReservation(@Valid @RequestBody GetReservationRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+        User user = userService.validByIdAndToken(body.getId(), body.getToken());
         if (user != null && user.getIsLogin()) {
             // if contains date
             ArrayList<Object> result = new ArrayList<>();
@@ -252,7 +297,7 @@ public class UserController {
 
     @PostMapping(value = "/reserve", produces = "application/json")
     public ResponseEntity<?> reserve(@Valid @RequestBody ReserveRequestBody body) {
-        User user = userService.validAndGetUser(body.getId(), body.getPassword());
+        User user = userService.validAndGetUser(body.getId(), body.getToken());
         if (user != null && user.getIsLogin()) {
             ArrayList<Reservation> reservationsOfADay = userService.getUserReservationsByDate(user,
                     body.getTime().toLocalDate());

@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.utils.ApplicationPasswordEncoder;
 
+import com.jefferson.laundryorderingsystem.utils.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,27 @@ public class UserService {
 	private UserRepo repo;
 
 	private final ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
+
+	private boolean tokenIsMatched(int id, String token) {
+		Optional<User> optUserInDB = repo.findById(id);
+		return optUserInDB.map(user -> user.getTokens().contains(token)).orElse(false);
+	}
+
+	public void removeToken(int id, String token) {
+		Optional<User> optUserInDB = repo.findById(id);
+		optUserInDB.ifPresent(user -> user.getTokens().remove(token));
+	}
+
+	public User validByIdAndToken(int id, String token) {
+		Optional<User> optUserInDB = repo.findById(id);
+		if (optUserInDB.isPresent()) {
+			User userInDB = optUserInDB.get();
+			if (tokenIsMatched(id, token)) {
+				return userInDB;
+			}
+		}
+		return null;
+	}
 
 	public User validAndGetUser(int id, String password) {
 		Optional<User> optUserInDB = repo.findById(id);
@@ -50,8 +72,8 @@ public class UserService {
 		return result;
 	}
 
-	public int changePassword(int id, String oldPassword, String newPassword) {
-		User user = validAndGetUser(id, oldPassword);
+	public int changePassword(int id, String token, String newPassword) {
+		User user = validByIdAndToken(id, token);
 		if (user != null) {
 			user.setPassword(passwordEncoder.encode(newPassword));
 			saveUser(user);
@@ -60,7 +82,7 @@ public class UserService {
 		return -1;
 	}
 
-	public int regiser(int id, String password) {
+	public int register(int id, String password) {
         Optional<User> user = getUserById(id);
         if (user.isEmpty()) {
         	User newUser = new User(id, passwordEncoder.encode(password));
@@ -72,4 +94,15 @@ public class UserService {
         }
 	}
 
+	public String login(int id, String password) {
+		String result = null;
+		User user = validAndGetUser(id, password);
+		if (user != null) {
+			user.setIsLogin(true);
+			result = TokenGenerator.generate();
+			user.getTokens().add(result);
+			saveUser(user);
+		}
+		return result;
+	}
 }
