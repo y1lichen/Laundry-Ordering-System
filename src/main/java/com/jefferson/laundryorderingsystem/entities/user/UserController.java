@@ -216,7 +216,7 @@ public class UserController {
             response.setToken(token);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to login.");
+        return new ResponseEntity<String>("Unable to login", HttpStatus.UNAUTHORIZED);
     }
 
     @PostMapping("/logout")
