@@ -72,8 +72,8 @@ public class UserService {
 		return result;
 	}
 
-	public int changePassword(int id, String token, String newPassword) {
-		User user = validByIdAndToken(id, token);
+	public int changePassword(int id, String oldPassword, String newPassword) {
+		User user = validAndGetUser(id, oldPassword);
 		if (user != null) {
 			user.setPassword(passwordEncoder.encode(newPassword));
 			saveUser(user);

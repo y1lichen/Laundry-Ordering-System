@@ -148,7 +148,7 @@ public class UserController {
 
     private static class ChangePasswordRequestBody {
         private int id;
-        private String token;
+        private String oldPassword;
         private String newPassword;
 
         public void setId(int id) {
@@ -159,13 +159,12 @@ public class UserController {
             return id;
         }
 
-
-        public void setToken(String token) {
-            this.token = token;
+        public String getOldPassword() {
+            return oldPassword;
         }
 
-        public String getToken() {
-            return token;
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
         }
 
         public void setNewPassword(String newPassword) {
@@ -243,7 +242,7 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestBody body) {
-        if (userService.changePassword(body.getId(), body.getToken(), body.getNewPassword()) > 0) {
+        if (userService.changePassword(body.getId(), body.getOldPassword(), body.getNewPassword()) > 0) {
             return ResponseEntity.status(HttpStatus.OK).body("Password changed!");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ubable to change password.");
