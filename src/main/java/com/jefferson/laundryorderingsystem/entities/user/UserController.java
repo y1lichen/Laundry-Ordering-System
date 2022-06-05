@@ -208,7 +208,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/login")
+    @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<?> loginUser(@Valid @RequestBody User user) {
         LoginResponse response = new LoginResponse();
         String token = userService.login(user.getId(), user.getPassword());

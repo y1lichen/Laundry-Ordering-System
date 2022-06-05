@@ -6,6 +6,7 @@ import javax.validation.constraints.NotBlank;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,7 +27,7 @@ public class User {
 
     @ElementCollection
     @CollectionTable(name="tokens")
-    private ArrayList<String> tokens;
+    private List<String> tokens;
 
     @OneToMany(mappedBy = "reserveUser")
     @Column(name = "reservations")
@@ -78,7 +79,7 @@ public class User {
     }
 
     public ArrayList<String> getTokens() {
-        return tokens;
+        return (ArrayList<String>) tokens;
     }
 
     public void setTokens(ArrayList<String> tokens) {
