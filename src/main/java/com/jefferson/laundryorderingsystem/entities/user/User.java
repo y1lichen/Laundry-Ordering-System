@@ -1,16 +1,17 @@
 package com.jefferson.laundryorderingsystem.entities.user;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-
-import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
-
-
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+
+import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 
 @Entity
 @Table(name = "users")
@@ -24,9 +25,8 @@ public class User {
     private int credit;
     @Column(name = "isLogin")
     private boolean isLogin;
-
-    @ElementCollection
-    private List<String> tokens;
+    @Column(name = "token")
+    private String tokens;
 
     @OneToMany(mappedBy = "reserveUser")
     @Column(name = "reservations")
@@ -42,7 +42,7 @@ public class User {
         this.credit = 5;
         this.isLogin = false;
         this.reservations = new HashSet<>();
-        this.tokens = new ArrayList<>();
+        this.tokens = null;
     }
 
     public void setId(int id) {
@@ -77,13 +77,13 @@ public class User {
         this.isLogin = loggedIn;
     }
 
-    public List<String> getTokens() {
-        return tokens;
-    }
+   public String getTokens() {
+       return tokens;
+   }
 
-    public void setTokens(ArrayList<String> tokens) {
-        this.tokens = tokens;
-    }
+   public void setTokens(String tokens) {
+       this.tokens = tokens;
+   }
 
     public Set<Reservation> getReservations() {
         return reservations;

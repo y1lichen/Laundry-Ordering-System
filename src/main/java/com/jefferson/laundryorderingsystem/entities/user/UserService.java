@@ -10,11 +10,10 @@ import java.util.Optional;
 import com.jefferson.laundryorderingsystem.entities.reservation.Reservation;
 import com.jefferson.laundryorderingsystem.entities.reservation.ReservationService;
 import com.jefferson.laundryorderingsystem.utils.ApplicationPasswordEncoder;
-
 import com.jefferson.laundryorderingsystem.utils.TokenGenerator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,13 +28,12 @@ public class UserService {
 	private final ApplicationPasswordEncoder passwordEncoder = new ApplicationPasswordEncoder();
 
 	private boolean tokenIsMatched(int id, String token) {
-		Optional<User> optUserInDB = repo.findById(id);
-		return optUserInDB.map(user -> user.getTokens().contains(token)).orElse(false);
+		return token.equals(repo.getById(id).getTokens());
 	}
 
 	public void removeToken(int id, String token) {
 		Optional<User> optUserInDB = repo.findById(id);
-		optUserInDB.ifPresent(user -> user.getTokens().remove(token));
+		optUserInDB.ifPresent(user -> user.setTokens(null));
 	}
 
 	public User validByIdAndToken(int id, String token) {
@@ -109,8 +107,11 @@ public class UserService {
 		User user = validAndGetUser(id, password);
 		if (user != null) {
 			user.setIsLogin(true);
-			result = TokenGenerator.generate();
-			user.getTokens().add(result);
+			if (user.getTokens() != null) {
+				return user.getTokens();
+			}
+			result = passwordEncoder.encode(TokenGenerator.generate());
+			user.setTokens(result);
 			saveUser(user);
 		}
 		return result;
